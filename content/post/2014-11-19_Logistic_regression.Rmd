@@ -9,7 +9,9 @@ tags:
 ---
 
 The *odds of success* are defined as the ratio of the probability of success over the probability of failure. That is:
-`$$o = \frac{p}{1-p}$$`
+$$
+o = \frac{p}{1-p}
+$$
 
 It follows that:
 $$
