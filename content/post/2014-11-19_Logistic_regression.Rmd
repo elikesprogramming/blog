@@ -1,0 +1,206 @@
+---
+title: "Logistic regression"
+output: html_document
+---
+
+The *odds of success* are defined as the ratio of the probability of success over the probability of failure. That is:
+$$
+o = \frac{p}{1-p}
+$$
+
+It follows that:
+$$
+\begin{aligned}
+o(1-p) &= p \\
+o-op &= p \\
+o &= p+op \\
+o &= p(1+o) \\
+\frac{o}{1+o} &= p \\
+\end{aligned}
+$$
+
+Let's define two simple functions fot this:
+
+```{r}
+odds <- function(p) {
+    p/(1-p)
+}
+
+prob <- function(o) {
+    o/(1+o)
+}
+```
+
+The logistic regression performs two monotonic transformations (the greater the variable, the greater the transformed variable) that can be understood as a two-part transformation: 
+
+1. From probability to odds
+2. From odds to log of odds
+
+A key motivation for this transformation is that "it is usually difficult to model a variable with a restricted range" (probability that ranges between 0 and 1). Thus, the logistic transformation maps probability -that ranges between 0 and 1-, to log odds -that ranges between negative infinite to positive infinity- (first, odds converts probability in range [0, 1] to range [0, Inf], then taking the log converts the range (o, Inf) to (-Inf, Inf).
+
+p <- runif(10000)
+o <- odds(p)
+
+efunc::histogram(p)
+efunc::histogram(o)
+efunc::histogram(log(o))
+
+summary(p)
+summary(o)
+summary(log(o))
+
+
+The logistics regression looks like this:
+
+$$
+logit(p) = log \left( \frac{p}{1-p} \right) = \beta_0 + \beta_1x_1 + \cdots + \beta_kx_k
+$$
+
+And you estimate such equation using maximum likelihood methods.
+
+How does this look in terms of probabilities?
+
+Ok, so let's simulate some data to illustrate the model and its interpretation. Let $y$ be the binary outcome of interest (e.g. get accepted), $i$ a binary covariate (e.g. Control and Intervention) and $x$ a continuous covariate.
+
+```{r, , results="asis"}
+set.seed(1234567)
+N <- 200
+fakedf <- data.frame(x = runif(N), i = rbinom(n = N, size = 1, prob = 0.45))
+fakedf$y <- rbinom(n = N, size = 1, prob = with(fakedf, (x+i)/(1+x+i)))
+fakedf$i <- factor(fakedf$i, labels = c("Control", "Intervention"))
+
+Success <- c(tapply(X=fakedf$y, INDEX=fakedf$i, FUN=sum), Total=sum(fakedf$y))
+Total <- c(tapply(X=fakedf$y, INDEX=fakedf$i, FUN=length), Total=length(fakedf$y))
+Fail <- Total - Success
+Probability <- Success / Total
+Odds <- odds(Probability)    
+library(pander)
+pandoc.table(rbind(Fail, Success, Total, Probability, Odds), 
+             style="rmarkdown", split.tables=Inf, digits=5)
+```
+
+Now let's fit a logistic regression including only the intercept:
+
+```{r}
+glm1 <- glm(y ~ 1, data=fakedf, family = binomial(link = "logit"))
+summary(glm1)
+```
+
+Such model corresponds to:
+
+$$
+log \left( \frac{p}{1-p} \right) = \beta_0
+$$
+
+And the results show that $\beta_0=`r glm1$coefficients[1]`$. What does it mean? It says that the $log$ of the odds is `r glm1$coefficients[1]` so
+
+$$
+log \left( \frac{p}{1-p} \right) = \beta_0 = `r glm1$coefficients[1]`
+$$
+
+Taking exponencials we have
+
+$$
+\begin{aligned}
+e^{log \left( \frac{p}{1-p} \right)} &= e^{\beta_0} = e^{`r glm1$coefficients[1]`} \\
+\frac{p}{1-p} &= e^{\beta_0} = `r exp(glm1$coefficients[1])` \\
+\end{aligned}
+$$
+
+Remember the definition of odds is precisely $\frac{p}{1-p}$ so you have that exponentiating the coeficient of the intercept in this model without any other covariate you have the overall $odds$ of the data (you can check it corresponds with the odds shown in the table above $odds=`r exp(glm1$coefficients[1])`$)
+
+$$
+\begin{aligned}
+odds = \frac{p}{1-p} &= e^{\beta_0} = `r exp(glm1$coefficients[1])` \\
+\end{aligned}
+$$
+
+Now you can simply solve for $p$ in this equation and replace the values of the $odds$ to find the probability, which in this case is the overall probability of success in the outcome variable (again, it corresponds to the probability in the table above).
+
+$$
+\begin{aligned}
+p = \frac{odds}{1+odds} \Rightarrow p = `r prob(exp(glm1$coefficients[1]))` \\
+\end{aligned}
+$$
+
+Now let's fit a logistic regression including the intercept and a binary covariate:
+
+```{r}
+glm1 <- glm(y ~ i, data=fakedf, family = binomial(link = "logit"))
+summary(glm1)
+```
+
+Such model corresponds to:
+
+$$
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot i
+$$
+
+And the results show that $\beta_0=`r glm1$coefficients[1]`$ and $\delta=`r glm1$coefficients[2]`$. How do you interpret now the coeficients? First, note that $\beta_0$ is the intercept of the model and when the other covariates are zero, we have the same situation as before where $\beta_0$ is the log of the odds of the model, in this case, conditional on the covariate $i=0$ (you can check that $odds$ and $p$ once again coincide with those presented in the table above, but in this case not for the total sample but only for the observations in the control group, that is, those where $i=0$)
+
+$$
+\begin{aligned}
+log \left( \frac{p}{1-p} \right) = \beta_0 &= `r glm1$coefficients[1]` \\
+e^{log \left( \frac{p}{1-p} \right)} = e^{\beta_0} &= e^{`r glm1$coefficients[1]`} \\
+odds = \frac{p}{1-p} = e^{\beta_0} &= `r exp(glm1$coefficients[1])` \\
+p &= `r prob(exp(glm1$coefficients[1]))`
+\end{aligned}
+$$
+
+But what if $i=1$?
+
+$$
+\begin{aligned}
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot i \\
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot 1 \\
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \\
+e^{log \left( \frac{p}{1-p} \right)} = e^{\beta_0 + \delta} &= e^{`r glm1$coefficients[1]` + `r glm1$coefficients[2]`} \\
+odds = \frac{p}{1-p} = e^{\beta_0 + \delta} &= `r exp(glm1$coefficients[1] + glm1$coefficients[2])` \\
+p &= `r prob(exp(glm1$coefficients[1] + glm1$coefficients[2]))`
+\end{aligned}
+$$
+
+Thus, $\beta_0 + \delta$ is the log odds ratio of the model, conditional on $i=1$, that is, the log odds ratio of the control group. So, exponentiatiating $\beta_0 + \delta$ and solving for $p$ we obtain the probability of success of the control group (again, coincides with the table above).
+
+And what does $\delta$ alone mean, then?
+$$
+\begin{aligned}
+\beta_0 + \delta &= log \left( \frac{p}{1-p} \right) \\
+\delta &= log \left( \frac{p}{1-p} \right) - \beta_0 \\
+e^{\delta} &= e^{log \left( \frac{p}{1-p} \right) - \beta_0} \\
+e^{\delta} &= \frac{e^{log \left( \frac{p}{1-p} \right)}}{e^{\beta_0}} \\
+e^{\delta} &= \frac{\frac{p}{1-p}}{e^{\beta_0}} \\
+\end{aligned}
+$$
+
+
+
+$log(\frac{p}{1-p}) = \alpha + \beta G + \gamma T + \delta P$
+
+$P=G*T$
+
+Hay 4 casos:  
+1. $G=0$ y $T=0$ (grupo control en l?nea de base).  
+2. $G=1$ y $T=0$ (grupo tratamiento en l?nea de base).  
+3. $G=0$ y $T=1$ (grupo control en follow-up).  
+4. $G=1$ y $T=1$ (grupo tratamiento en follow-up).   
+
+
+Caso 1:   
+$log(\frac{p}{1-p}) = \alpha$
+
+Caso 2:  
+$log(\frac{p}{1-p}) = \alpha + \beta$
+
+Caso 3:  
+$log(\frac{p}{1-p}) = \alpha + \gamma$
+
+Caso 4:  
+$log(\frac{p}{1-p}) = \alpha + \beta + \gamma + \delta$
+
+Caso 4 - Caso 3:  
+$log(\frac{p_4}{1-p_4}) - log(\frac{p_3}{1-p_3}) = \beta + \delta$
+
+Caso 4 - Caso 2:  
+$log(\frac{p_4}{1-p_4}) - log(\frac{p_2}{1-p_2}) = \gamma + \delta$
+

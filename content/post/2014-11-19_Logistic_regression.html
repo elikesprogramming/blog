@@ -1,0 +1,236 @@
+---
+title: "Logistic regression"
+output: html_document
+---
+
+
+
+<p>The <em>odds of success</em> are defined as the ratio of the probability of success over the probability of failure. That is:
+<span class="math display">\[
+o = \frac{p}{1-p}
+\]</span></p>
+<p>It follows that:
+<span class="math display">\[
+\begin{aligned}
+o(1-p) &amp;= p \\
+o-op &amp;= p \\
+o &amp;= p+op \\
+o &amp;= p(1+o) \\
+\frac{o}{1+o} &amp;= p \\
+\end{aligned}
+\]</span></p>
+<p>Let’s define two simple functions fot this:</p>
+<pre class="r"><code>odds &lt;- function(p) {
+    p/(1-p)
+}
+
+prob &lt;- function(o) {
+    o/(1+o)
+}</code></pre>
+<p>The logistic regression performs two monotonic transformations (the greater the variable, the greater the transformed variable) that can be understood as a two-part transformation:</p>
+<ol style="list-style-type: decimal">
+<li>From probability to odds</li>
+<li>From odds to log of odds</li>
+</ol>
+<p>A key motivation for this transformation is that “it is usually difficult to model a variable with a restricted range” (probability that ranges between 0 and 1). Thus, the logistic transformation maps probability -that ranges between 0 and 1-, to log odds -that ranges between negative infinite to positive infinity- (first, odds converts probability in range [0, 1] to range [0, Inf], then taking the log converts the range (o, Inf) to (-Inf, Inf).</p>
+<p>p &lt;- runif(10000)
+o &lt;- odds(p)</p>
+<p>efunc::histogram(p)
+efunc::histogram(o)
+efunc::histogram(log(o))</p>
+<p>summary(p)
+summary(o)
+summary(log(o))</p>
+<p>The logistics regression looks like this:</p>
+<p><span class="math display">\[
+logit(p) = log \left( \frac{p}{1-p} \right) = \beta_0 + \beta_1x_1 + \cdots + \beta_kx_k
+\]</span></p>
+<p>And you estimate such equation using maximum likelihood methods.</p>
+<p>How does this look in terms of probabilities?</p>
+<p>Ok, so let’s simulate some data to illustrate the model and its interpretation. Let <span class="math inline">\(y\)</span> be the binary outcome of interest (e.g. get accepted), <span class="math inline">\(i\)</span> a binary covariate (e.g. Control and Intervention) and <span class="math inline">\(x\)</span> a continuous covariate.</p>
+<pre class="r"><code>set.seed(1234567)
+N &lt;- 200
+fakedf &lt;- data.frame(x = runif(N), i = rbinom(n = N, size = 1, prob = 0.45))
+fakedf$y &lt;- rbinom(n = N, size = 1, prob = with(fakedf, (x+i)/(1+x+i)))
+fakedf$i &lt;- factor(fakedf$i, labels = c(&quot;Control&quot;, &quot;Intervention&quot;))
+
+Success &lt;- c(tapply(X=fakedf$y, INDEX=fakedf$i, FUN=sum), Total=sum(fakedf$y))
+Total &lt;- c(tapply(X=fakedf$y, INDEX=fakedf$i, FUN=length), Total=length(fakedf$y))
+Fail &lt;- Total - Success
+Probability &lt;- Success / Total
+Odds &lt;- odds(Probability)    
+library(pander)
+pandoc.table(rbind(Fail, Success, Total, Probability, Odds), 
+             style=&quot;rmarkdown&quot;, split.tables=Inf, digits=5)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="center"> </th>
+<th align="center">Control</th>
+<th align="center">Intervention</th>
+<th align="center">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><strong>Fail</strong></td>
+<td align="center">77</td>
+<td align="center">39</td>
+<td align="center">116</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>Success</strong></td>
+<td align="center">37</td>
+<td align="center">47</td>
+<td align="center">84</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>Total</strong></td>
+<td align="center">114</td>
+<td align="center">86</td>
+<td align="center">200</td>
+</tr>
+<tr class="even">
+<td align="center"><strong>Probability</strong></td>
+<td align="center">0.32456</td>
+<td align="center">0.54651</td>
+<td align="center">0.42</td>
+</tr>
+<tr class="odd">
+<td align="center"><strong>Odds</strong></td>
+<td align="center">0.48052</td>
+<td align="center">1.2051</td>
+<td align="center">0.72414</td>
+</tr>
+</tbody>
+</table>
+<p>Now let’s fit a logistic regression including only the intercept:</p>
+<pre class="r"><code>glm1 &lt;- glm(y ~ 1, data=fakedf, family = binomial(link = &quot;logit&quot;))
+summary(glm1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ 1, family = binomial(link = &quot;logit&quot;), data = fakedf)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.044  -1.044  -1.044   1.317   1.317  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)  
+## (Intercept)  -0.3228     0.1433  -2.253   0.0243 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 272.12  on 199  degrees of freedom
+## Residual deviance: 272.12  on 199  degrees of freedom
+## AIC: 274.12
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Such model corresponds to:</p>
+<p><span class="math display">\[
+log \left( \frac{p}{1-p} \right) = \beta_0
+\]</span></p>
+<p>And the results show that <span class="math inline">\(\beta_0=-0.3227734\)</span>. What does it mean? It says that the <span class="math inline">\(log\)</span> of the odds is -0.3227734 so</p>
+<p><span class="math display">\[
+log \left( \frac{p}{1-p} \right) = \beta_0 = -0.3227734
+\]</span></p>
+<p>Taking exponencials we have</p>
+<p><span class="math display">\[
+\begin{aligned}
+e^{log \left( \frac{p}{1-p} \right)} &amp;= e^{\beta_0} = e^{-0.3227734} \\
+\frac{p}{1-p} &amp;= e^{\beta_0} = 0.7241379 \\
+\end{aligned}
+\]</span></p>
+<p>Remember the definition of odds is precisely <span class="math inline">\(\frac{p}{1-p}\)</span> so you have that exponentiating the coeficient of the intercept in this model without any other covariate you have the overall <span class="math inline">\(odds\)</span> of the data (you can check it corresponds with the odds shown in the table above <span class="math inline">\(odds=0.7241379\)</span>)</p>
+<p><span class="math display">\[
+\begin{aligned}
+odds = \frac{p}{1-p} &amp;= e^{\beta_0} = 0.7241379 \\
+\end{aligned}
+\]</span></p>
+<p>Now you can simply solve for <span class="math inline">\(p\)</span> in this equation and replace the values of the <span class="math inline">\(odds\)</span> to find the probability, which in this case is the overall probability of success in the outcome variable (again, it corresponds to the probability in the table above).</p>
+<p><span class="math display">\[
+\begin{aligned}
+p = \frac{odds}{1+odds} \Rightarrow p = 0.42 \\
+\end{aligned}
+\]</span></p>
+<p>Now let’s fit a logistic regression including the intercept and a binary covariate:</p>
+<pre class="r"><code>glm1 &lt;- glm(y ~ i, data=fakedf, family = binomial(link = &quot;logit&quot;))
+summary(glm1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ i, family = binomial(link = &quot;logit&quot;), data = fakedf)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.2576  -0.8859  -0.8859   1.0993   1.5002  
+## 
+## Coefficients:
+##               Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)    -0.7329     0.2000  -3.664 0.000249 ***
+## iIntervention   0.9195     0.2948   3.119 0.001818 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 272.12  on 199  degrees of freedom
+## Residual deviance: 262.18  on 198  degrees of freedom
+## AIC: 266.18
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<p>Such model corresponds to:</p>
+<p><span class="math display">\[
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot i
+\]</span></p>
+<p>And the results show that <span class="math inline">\(\beta_0=-0.7328875\)</span> and <span class="math inline">\(\delta=0.9194735\)</span>. How do you interpret now the coeficients? First, note that <span class="math inline">\(\beta_0\)</span> is the intercept of the model and when the other covariates are zero, we have the same situation as before where <span class="math inline">\(\beta_0\)</span> is the log of the odds of the model, in this case, conditional on the covariate <span class="math inline">\(i=0\)</span> (you can check that <span class="math inline">\(odds\)</span> and <span class="math inline">\(p\)</span> once again coincide with those presented in the table above, but in this case not for the total sample but only for the observations in the control group, that is, those where <span class="math inline">\(i=0\)</span>)</p>
+<p><span class="math display">\[
+\begin{aligned}
+log \left( \frac{p}{1-p} \right) = \beta_0 &amp;= -0.7328875 \\
+e^{log \left( \frac{p}{1-p} \right)} = e^{\beta_0} &amp;= e^{-0.7328875} \\
+odds = \frac{p}{1-p} = e^{\beta_0} &amp;= 0.4805195 \\
+p &amp;= 0.3245614
+\end{aligned}
+\]</span></p>
+<p>But what if <span class="math inline">\(i=1\)</span>?</p>
+<p><span class="math display">\[
+\begin{aligned}
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot i \\
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \cdot 1 \\
+log \left( \frac{p}{1-p} \right) = \beta_0 + \delta \\
+e^{log \left( \frac{p}{1-p} \right)} = e^{\beta_0 + \delta} &amp;= e^{-0.7328875 + 0.9194735} \\
+odds = \frac{p}{1-p} = e^{\beta_0 + \delta} &amp;= 1.2051282 \\
+p &amp;= 0.5465116
+\end{aligned}
+\]</span></p>
+<p>Thus, <span class="math inline">\(\beta_0 + \delta\)</span> is the log odds ratio of the model, conditional on <span class="math inline">\(i=1\)</span>, that is, the log odds ratio of the control group. So, exponentiatiating <span class="math inline">\(\beta_0 + \delta\)</span> and solving for <span class="math inline">\(p\)</span> we obtain the probability of success of the control group (again, coincides with the table above).</p>
+<p>And what does <span class="math inline">\(\delta\)</span> alone mean, then?
+<span class="math display">\[
+\begin{aligned}
+\beta_0 + \delta &amp;= log \left( \frac{p}{1-p} \right) \\
+\delta &amp;= log \left( \frac{p}{1-p} \right) - \beta_0 \\
+e^{\delta} &amp;= e^{log \left( \frac{p}{1-p} \right) - \beta_0} \\
+e^{\delta} &amp;= \frac{e^{log \left( \frac{p}{1-p} \right)}}{e^{\beta_0}} \\
+e^{\delta} &amp;= \frac{\frac{p}{1-p}}{e^{\beta_0}} \\
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(log(\frac{p}{1-p}) = \alpha + \beta G + \gamma T + \delta P\)</span></p>
+<p><span class="math inline">\(P=G*T\)</span></p>
+<p>Hay 4 casos:<br />
+1. <span class="math inline">\(G=0\)</span> y <span class="math inline">\(T=0\)</span> (grupo control en l?nea de base).<br />
+2. <span class="math inline">\(G=1\)</span> y <span class="math inline">\(T=0\)</span> (grupo tratamiento en l?nea de base).<br />
+3. <span class="math inline">\(G=0\)</span> y <span class="math inline">\(T=1\)</span> (grupo control en follow-up).<br />
+4. <span class="math inline">\(G=1\)</span> y <span class="math inline">\(T=1\)</span> (grupo tratamiento en follow-up).</p>
+<p>Caso 1:<br />
+<span class="math inline">\(log(\frac{p}{1-p}) = \alpha\)</span></p>
+<p>Caso 2:<br />
+<span class="math inline">\(log(\frac{p}{1-p}) = \alpha + \beta\)</span></p>
+<p>Caso 3:<br />
+<span class="math inline">\(log(\frac{p}{1-p}) = \alpha + \gamma\)</span></p>
+<p>Caso 4:<br />
+<span class="math inline">\(log(\frac{p}{1-p}) = \alpha + \beta + \gamma + \delta\)</span></p>
+<p>Caso 4 - Caso 3:<br />
+<span class="math inline">\(log(\frac{p_4}{1-p_4}) - log(\frac{p_3}{1-p_3}) = \beta + \delta\)</span></p>
+<p>Caso 4 - Caso 2:<br />
+<span class="math inline">\(log(\frac{p_4}{1-p_4}) - log(\frac{p_2}{1-p_2}) = \gamma + \delta\)</span></p>

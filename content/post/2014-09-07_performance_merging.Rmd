@@ -1,0 +1,230 @@
+---
+title: Join (sql), Merge (stata)
+author: "elikesprogramming"
+date: "2014-09-10"
+categories:
+  - R
+---
+
+```{r setup, include=FALSE}
+library(efunc)
+
+library(ggplot2)
+library(gridExtra)
+library(gtable)
+
+library(dplyr)
+library(magrittr)
+library(tidyr)
+
+library(readr)
+library(readxl)
+
+library(knitr)
+library(pander)
+
+opts_chunk$set(echo = ech <- TRUE, warning = ech, message = ech, error = ech, 
+               include = ech, cache.comments = FALSE, cache = TRUE)
+```
+
+# Introduction
+So, one of the most common tasks is to combine data from different datasets, matching observations on one or more common variables. My background for handling data is originally in SQL and later I learned some statistics/econometrics using Stata, and this common task is called join in SQL or merge in Stata. Now that I am learning R, this is certainly one of the first things I need to find out how to do and as most things in R (and in life), there are several different ways to do it. This document illustrate some of them.
+
+# First example
+Consider the following example of two data frames df1 and df2. You want to put them together in one data.frame, matching the observations based on a common variable (or many). For this example, let's just consider you want to keep all the observations in df1 and append to it the variables from df2 (a left outer join in sql).
+
+```{r}
+df1 <- data.frame(id=1:7, var1=rnorm(7))
+df2 <- data.frame(id=c(2,4,6), var2=c(7,8,9))
+df1
+df2
+```
+
+There are several approaches to achieve this merge using R. Let's see a couple of them:
+	
+## Using `match` and `cbind`
+I guess this is the R-way (not sure though). Let me explain (myself) how it works. 
+
+* First, it uses the function `match()`, which according to the help file "returns a vector of the positions of (first) matches of its first argument in its second".
+* Then, selects from df2 only the matching observations and the variables we want to merge into df1 (that is, it subsets df2 using squared brackets doing something like this `df2[positions_of_the_matching_observations, variables_to_merge]`; of course, you could have also used the `subset()` function).
+* And finally, it combines by columns (`cbind()`) df1 with the result of the previous match and subset.
+* And there you go!
+
+```{r}
+cbind(df1, var2=df2[match(df1$id, df2$id), "var2"])
+```
+
+## Using the `merge` function
+A second approach is to use the `merge()` function in the base package. The function "Merge two data frames by common columns or row names, or do other versions of database join operations". In our example, you only have to specify the data.frames to merge, the variable(s) to match observations (actually you do not have to provide this; if you do not provide it, merge will try to match observations based on the common variables in the two data.frames `intersect(names(x), names(y))`) and tell the function you want to retain all the values of the first data.frame (`all.x=TRUE`).
+
+```{r}
+merge(x=df1, y=df2, by="id", all.x=TRUE)
+```
+
+## Using `data.table` and the merge function
+Now, I introduce the merge for data.table insted of data.frame, because sometimes I have to merge quite big datasets and either do not fit the memory of my machine or it gets painfully slow.
+
+```{r}
+library(data.table)
+dt1 <- data.table(df1)
+dt2 <- data.table(df2)
+merge(x=dt1, y=dt2, by="id", all.x=TRUE)
+```
+
+## Using `dplyr`
+Another alternative is to use dplyr. (When I first wrote this, dplyr was not still around). One of the many godd things about dplyr is that it operates with different data structures/sources, so you can also use it to merge data using data.table as the backend.
+
+```{r}
+library(dplyr)
+left_join(x=df1, y=df2, by="id")
+```
+
+## Performance
+
+Let's compare the performance of these approaches, in our very first example.
+
+```{r}
+library(microbenchmark)
+library(ggplot2)
+mbm <- microbenchmark(
+    cbind_match = cbind(df1, var2=df2[match(df1$id, df2$id), "var2"]),
+    merge_dataframe = merge(df1, df2, by="id", all.x=TRUE),
+    merge_datatable = merge(dt1, dt2, by="id", all.x=TRUE),
+    dplyr_dataframe = left_join(x=df1, y=df2, by="id"),
+    dplyr_datatable = left_join(x=dt1, y=dt2, by="id"),
+    times=1000)
+autoplot(mbm)
+```
+
+
+```{r fig.height=4, fig.width=10}
+gp <- ggplot(data = mbm, aes(x = log(time), fill = expr))
+gp <- gp + geom_density(color = NA, alpha = 0.7) 
+gp <- gp + geom_rug()
+gp <- gp + theme(legend.position = "bottom")
+gp
+```
+
+So, at least for this toy data, cbind+match and dplyr are the fastest, then the merge an finally the data.table+merge. Of course, this is by no means conclusive because the performance may depend on several factors such as the size of each data.frame (# of obs), their relative size, whether the matching variables are unique or have duplicates, among others. For now, it seems that the overhead imposed by `data.table` for such small data is considerable, so using it when you do not actually need it ('cause ypu do not have large dataset).
+
+# Join cases
+In SQL you have inner and outr joins. Out joins can be divided into left outer joins, right outer joins and full outer joins. As in our example, left outer join retains all rows of the left table regardless of whether there is a row that matches on the right table. Right outer join is the same but the other way around and a full outer join retains all rows from both tables. In contrast, inner joins retain only matching rows.
+
+These cases can be replicated very straigthforward using the merge function, indicating the case with the parameters all, all.x, all.y. The help file explains it: "In SQL database terminology, the default value of all = FALSE gives a natural join, a special case of an inner join. Specifying all.x = TRUE gives a left (outer) join, all.y = TRUE a right (outer) join, and both (all = TRUE a (full) outer join. DBMSes do not match NULL records, equivalent to incomparables = NA in R."
+
+Here's an example posted in Stack Overflow ^[http://stackoverflow.com/questions/1299871/how-to-join-data-frames-in-r-inner-outer-left-right]:
+
+> **Inner join:** `merge(df1, df2)` will work for these examples because R automatically joins the frames by common variable names, but you would most likely want to specify `merge(df1, df2, by="CustomerId")` to make sure that you were matching on only the fields you desired. You can also use the `by.x` and `by.y` parameters if the matching variables have different names in the different data frames.
+
+> **Outer join**: `merge(x = df1, y = df2, by = "CustomerId", all = TRUE)`
+
+> **Left outer**: `merge(x = df1, y = df2, by = "CustomerId", all.x=TRUE)`
+
+> **Right outer**: `merge(x = df1, y = df2, by = "CustomerId", all.y=TRUE)`
+
+> **Cross join**: `merge(x = df1, y = df2, by = NULL)`
+
+
+It can also be achieved using the cbind+match approach, and some of the cases would be pretty straigthforward. However, you certainly will have to type more than using the merge function (for example, for a full outer join).
+
+Finally, another nice thing of `dplyr`(at least for those of us with SQL background) is that it has specific functions for these different cases `inner_join`, `left_join`, `right_join`, `full_join`, `semi_join`, `anti_join`.
+
+# Duplicates
+Just a warning. When the matching columns are both unique, everything's smooth. However, if you have duplicates things can go wrong (terribly wrong!). Remember for example that `match()` returns a vector of the positions of **(first)** matches of its **first** argument in **its second**. You you have to be careful, clearly define what you want to do and adjust accordingly.
+
+Consider the following example. It is very similar to our previous example, but in this case there is one duplicate in the df2. Using the very same commands as before, the `merge()` indeed do what I want (a left outer join), but the cbind+match fails to return my desired result (it misses the second 7 in df2).
+
+```{r}
+df1 <- data.frame(id=c(1:7), var1=rnorm(7))
+df2 <- data.frame(id=c(2,7,7), var2=c(7,8,9))
+cbind(df1, var2=df2[match(df1$id, df2$id), "var2"])
+merge(df1, df2, by="id", all.x=TRUE)
+```
+
+# Performance for different data size
+
+Now let's examine a bit the performance of the join/merge approaches for a left outer join, as the number of observations change. To do this, let's first define a function that creates the data.frames for different sizes and runs the comparison using microbenchmark, and returns the result.
+
+```{r}
+merge_compare <- function(n1, n2){
+	n <- 2*max(n1,n2)
+	df1 <- data.frame(id=sample(1:n, size=n1, replace=FALSE),
+					  var1=rnorm(n1))	
+ 	df2 <- data.frame(id=sample(1:n, size=n2, replace=FALSE),
+ 					  var2=rnorm(n2))
+ 	dt1 <- data.table(df1)
+	dt2 <- data.table(df2)
+    mbm <- microbenchmark(
+        cbind_match = cbind(df1, var2=df2[match(df1$id, df2$id), "var2"]),
+        merge_dataframe = merge(df1, df2, by="id", all.x=TRUE),
+        merge_datatable = merge(dt1, dt2, by="id", all.x=TRUE),
+        dplyr_dataframe = left_join(x=df1, y=df2, by="id"),
+        dplyr_datatable = left_join(x=dt1, y=dt2, by="id"),
+        times=1000)
+    mbm
+}
+```
+
+Now let's run the comparison for the the different size combinations. ^[yeah I know I am using the "ugly" loops that the R people do not seem to like. I just find it much more natural this way and for me it is actually much easier to read the code. I also have to admit that I haven't totally grasped the (apparently) beloved vectorized operations and the apply family functions. Just give me a break. I know I have to do my homework and at some point learn the R-way to do this, but for now this works. Also, I haven't carefully investigated why R-guys dislike loops. The truth is that virtually every begginers guide to R discourage the use of loops and it seems one of the early reasons for this was performance (vectorized operations were faster than loops) but that do not seem to be the case anymore (although several guides out there have not been updated and still say that loops are slower). Also, I've seen some guides claiming that using apply family functions make the code so much easier to read. I find this claim kind of crazy!. So I guess there are more (compelling) reasons to avoid loops in R, but I also have to do my homework on this to be able to comment further (and to make a decision to keep using loops or not)].
+```{r eval=FALSE}
+N1 <- c(10, 1000, 50000, 700000, 10000000)
+N2 <- c(10, 1000, 50000, 700000, 10000000)
+all <- data.frame()
+for (n1 in N1){
+	for (n2 in N2){
+		mbm <- merge_compare(n1, n2)
+		mbm$n1 <- n1
+		mbm$n2 <- n2
+		all <- rbind(all, as.data.frame(mbm))
+	}
+}
+```
+
+```{r eval=FALSE, echo=FALSE}
+save(all, file = "all_merge_performance_microbenchmark.RData")
+```
+
+```{r echo=FALSE}
+load(file = "all_merge_performance_microbenchmark.RData")
+```
+
+
+Now let's visualize the results:
+```{r fig.height=7, fig.width=10}
+gp <- ggplot(data=all, aes(y=log(time), x=expr))
+gp <- gp + geom_violin()
+gp <- gp + facet_grid(n1~n2, scales="free")
+gp <- gp + theme(axis.text = element_text(angle = 90))
+gp
+```
+
+```{r fig.height=7, fig.width=10}
+gp <- ggplot(data=all, aes(x=expr, y=log(time), color=expr))
+gp <- gp + geom_jitter(alpha = 0.2)
+gp <- gp + geom_boxplot(outlier.size = 0)
+gp <- gp + facet_grid(n1~n2, scales="free")
+gp <- gp + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+gp
+```
+
+```{r fig.height=7, fig.width=10}
+gp <- ggplot(data=all, aes(x=log(time), fill=expr))
+gp <- gp + geom_density(alpha=0.7, color=NA)
+gp <- gp + facet_wrap(~n1+n2, scales = "free")
+gp <- gp + theme(legend.position = "bottom")
+gp
+```
+
+All in all, `match`+`cbind` is always the fastest. But as pointed out previously, it's syntax is not as intuitive as other alternatives and most importantly, this simple version does not work for duplicates and other (rather common) 'misbehaviour' in the data (of course, you can always tweak here and there to properly handle such cases using only base R, but then perhaps the performance would not be that good).
+
+Using a `data.table` backend (via `merge` or `dplyr`, they are both equally fast) helps a lot for big data sets, but it also has a considerable overhead for very small data sets. 
+
+When using a `data.frame` backend, the performance of the `merge` alone quickly deteriorates while `dplyr` keeps a good performance IF the big data is your left table. But if you have a relatively small data on your left side and you want to find the matches in a very large table, `dplyr` with a `data.table` backend has actually the worst performance.
+
+**UPDATE**: I've just found some examples and performance comparisons using `plyr` and `sqldf` packages^[http://stackoverflow.com/questions/4322219/whats-the-fastest-way-to-merge-join-data-frames-in-r].
+
+`sessionInfo()`
+```{r}
+sessionInfo()
+```
+
