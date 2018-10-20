@@ -19,7 +19,7 @@ o &= p(1+o) \\
 \end{aligned}
 $$
 
-Let's define two simple functions fot this:
+Let's define two simple functions for this:
 
 ```{r}
 odds <- function(p) {
