@@ -1,12 +1,15 @@
 ---
 title: "Logistic regression"
-output: html_document
+author: "elikesprogramming"
+date: '2014-11-19'
+categories:
+  - R
+tags:
+  - Logistic regression
 ---
 
 The *odds of success* are defined as the ratio of the probability of success over the probability of failure. That is:
-$$
-o = \frac{p}{1-p}
-$$
+`$$o = \frac{p}{1-p}$$`
 
 It follows that:
 $$
@@ -203,4 +206,6 @@ $log(\frac{p}{1-p}) = \alpha + \beta G + \gamma T + \delta P$
 
 <!-- Caso 4 - Caso 2:   -->
 <!-- $log(\frac{p_4}{1-p_4}) - log(\frac{p_2}{1-p_2}) = \gamma + \delta$ -->
+
+... 
 
