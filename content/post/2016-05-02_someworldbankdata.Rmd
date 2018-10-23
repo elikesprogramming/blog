@@ -1,0 +1,203 @@
+---
+title: "Playing with some World Bank data"
+author: elikesprogramming
+date: '2016-05-02'
+categories:
+  - R
+---
+```{r setup, include=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(gtable)
+
+library(tidyverse)
+
+library(readr)
+library(readxl)
+
+library(knitr)
+library(pander)
+
+library(wbstats)
+
+opts_chunk$set(echo = ech <- TRUE, warning = ech, message = TRUE, error = ech, 
+               include = TRUE, cache.comments = FALSE, cache = FALSE)
+```
+
+After reading this [blog post](http://www.magesblog.com/2016/04/new-r-package-to-access-world-bank-data.html), I wanted to try `wbstats`, a new package ["to quickly search and download the [World Bank] data of their particular interest in a programmatic and reproducible fashion"](https://cran.r-project.org/web/packages/wbstats/vignettes/Using_the_wbstats_package.html);
+
+So, after installing the package I am sort of following the vignette to quickly find and download health-related indicators.
+
+```{r cache = TRUE}
+library(wbstats)
+
+# Checkout the available data
+str(c, max.level = 1)
+
+# Update the available data
+#wb_cachelist <- wbcache() # this could take a while
+
+# Find out what health related indicators are available
+health_indicators <- wbsearch(pattern = "health")
+```
+
+But ok, maybe there are too many health-related indicators (`r nrow(health_indicators)`).
+```{r}
+widgetframe::frameWidget(DT::datatable(health_indicators))
+```
+
+By default, `wbsearch` searches on the indicator name and description. But when you go the World Bank web page, the indicators are nicely arranged in topics. The topics data are indeed available.
+```{r}
+widgetframe::frameWidget(DT::datatable(wb_cachelist$topics))
+```
+
+Let's narrow it down to only health expenditure indicators.
+```{r}
+# Find out what health related indicators are available
+he_ind <- wbsearch(pattern = "health expenditure")
+widgetframe::frameWidget(DT::datatable(he_ind))
+```
+
+And now let's download the data using the function `wb`:
+```{r cache=TRUE, eval=FALSE}
+he_data <- wb(country = "all", 
+			  indicator = he_ind$indicatorID,
+			  startdate = 1970, 
+			  enddate = 2017)
+```
+
+```{r include=FALSE, eval=FALSE}
+saveRDS(he_data, "he_data.rds")
+```
+
+```{r include=FALSE}
+he_data <- readRDS("he_data.rds")
+```
+
+Let's see how the data look like:
+
+```{r}
+str(he_data, max.level = 1)
+```
+
+As explained in the vignette, "Queries with multiple indicators return the data in a long data format". That's all right. 
+
+Let's summarize the data.
+
+```{r}
+# We want to take a look at data types, missing values and number of unique values
+he_data_summ <- he_data %>% summarise_all(funs(
+	var_class = class(.),
+    cnt_na = sum(is.na(.)),
+    cnt_na_p = sum(is.na(.)) / length(.),
+    cnt_unique = length(unique(.)),
+    cnt_unique_p = length(unique(.)) / length(.)
+)) 
+molten_summ <- data.table::melt(
+	data = data.table::setDT(he_data_summ), 
+	measure.vars = patterns(
+		var_class = "_var_class$", cnt_na = "_cnt_na$", cnt_na_p = "_cnt_na_p$", 
+		cnt_unique = "_cnt_unique$", cnt_unique_p = "_cnt_unique_p$")) 
+molten_summ$variable <- names(he_data)[molten_summ$variable]
+
+library(formattable)
+formattable(molten_summ, list(
+	cnt_na = formatter("span", style = function(x) formattable::style(
+		display = "inline-block",
+		direction = "rtl", 
+		width = percent(normalize(x)),
+		"border-radius" = "1px",
+		"padding-left" = "1px",
+		"background-color" = csscolor("red")),
+		function(x) comma(x, 0)),
+	cnt_na_p = formatter("span", style = function(x) formattable::style(
+		display = "inline-block",
+		direction = "rtl", 
+		width = percent((x)),
+		"border-radius" = "1px",
+		"padding-left" = "1px",
+		"background-color" = csscolor("red")),
+		function(x) percent(x, 1)),
+	cnt_unique = formatter("span", style = function(x) formattable::style(
+		display = "inline-block",
+		direction = "rtl", 
+		width = percent(normalize(x)),
+		"border-radius" = "1px",
+		"padding-left" = "1px",
+		"background-color" = csscolor("#4db8ff")),
+		function(x) comma(x, 0)),
+	cnt_unique_p = formatter("span", style = function(x) formattable::style(
+		display = "inline-block",
+		direction = "rtl", 
+		width = percent((x)),
+		"border-radius" = "1px",
+		"padding-left" = "1px",
+		"background-color" = csscolor("#4db8ff")),
+		function(x) percent(x, 1))
+))
+```
+
+
+Some eye-catching things:
+
+- The `value` does not have NAs, even though I am pretty sure all these indicators are not available for all these countries in all these years. This is because of the default `removeNA = TRUE` of `wb`.
+- The `date`, which is a year, comes as a character.
+- The variable `country` shows that the data not only contain individual countries. but also values for regions (e.g. Arab World) or groups of countries for which the World Bank calculates aggregates.
+
+I want to keep only individual countries. In the cache summarizing the data, the object `countries` can be filtered for those whose region is a region itself, or what they call "Aggregates". Excluding "Aggregates" would leave only individual countries.
+
+```{r}
+individual_countries <- wb_cachelist$countries$iso2c[
+	wb_cachelist$countries$region != "Aggregates"]
+
+he_data <- he_data[he_data$iso2c %in% individual_countries, ]
+```
+
+Finally, reshape the data to produce a couple of scatter plots. Actually, motion plot powered by `googleVis`
+
+```{r}
+he_data_plot <- he_data %>% 
+	select(value, date, indicatorID, country) %>%
+	mutate(date = as.numeric(date)) %>%
+	tidyr::spread(indicatorID, value)
+```
+
+Set the options to plot `googleVis` directly from RMarkdown.
+
+```{r setOptions, message=FALSE}
+library(googleVis)
+op <- options(gvis.plot.tag='chart')
+```
+
+The following plot statements will automatically return the HTML
+required for the 'knitted' output.
+
+```{r results='asis', fig.height=8, fig.width=8}
+# Create the interactive motion chart with R and `gvisMotionChart())`
+motion_graph <- gvisMotionChart(he_data_plot,
+								idvar = "country",
+								timevar = "date",
+								xvar = "SH.XPD.PRIV.ZS",
+								yvar = "SH.XPD.OOPC.TO.ZS", 
+								sizevar = "SH.XPD.PCAP.PP.KD", 
+								colorvar = "SH.XPD.TOTL.ZS")
+plot(motion_graph) # here for WordPress I will not actually plot it,
+# because it will not render anyway
+```
+
+> Please note that the Motion Chart is only displayed when hosted on a
+> web server, or if placed in a directory which has been added to the 
+> trusted sources in the [security settings of Macromedia]
+> (http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager04.html). 
+
+
+```{r resetOptions}
+## Set options back to original options
+options(op)
+```
+
+
+```{r}
+#save.image(file = "temp_rmd_data.RData")
+#load(file = "temp_rmd_data.RData")
+```
