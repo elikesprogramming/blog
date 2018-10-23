@@ -1,0 +1,21 @@
+---
+title: Testing rbokeh
+author: elikesprogramming
+date: '2018-10-24'
+slug: testing-rbokeh
+categories:
+  - R
+tags: []
+---
+
+```{r}
+library(rbokeh)
+
+## initialize a map for NY center
+ny_map <- gmap(lat = 40.73306, lng = -73.97351, 
+zoom = 11, map_style = gmap_style("blue_water"))
+  
+ny_map
+
+```
+
