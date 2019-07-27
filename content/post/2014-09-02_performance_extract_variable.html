@@ -1,7 +1,7 @@
 ---
 title: The performance of different methods for locating variables in a data.frame (and an excuse for my first RMarkdown example)
 author: elikesprogramming
-date: "2014-09-02" 
+date: "2014-09-02"
 thumbnailImage: "post/2014-09-07_performance_merging_files/figure-html/unnamed-chunk-7-1.png"
 categories:
   - R
@@ -9,10 +9,10 @@ categories:
 
 
 
-<p>First, let’s create a data.frame with a few columns (variables)</p>
+<p>First, let’s create a data.frame with a few columns (i.e. variables)</p>
 <pre class="r"><code>set.seed(1234567)
-df &lt;- data.frame(var1=1:1000, var2=runif(1000), var3=rnorm(1000), 
-                 var4=runif(1000), var5=runif(1000), var6=rnorm(1000), 
+df &lt;- data.frame(var1=1:1000, var2=runif(1000), var3=rnorm(1000),
+                 var4=runif(1000), var5=runif(1000), var6=rnorm(1000),
                  var7=runif(1000))</code></pre>
 <p>Now, as far as I know, there are a number of methods in R to locate a variable in a data.frame (please let me know if I am missing one or more methods):</p>
 <ul>
@@ -25,7 +25,7 @@ df &lt;- data.frame(var1=1:1000, var2=runif(1000), var3=rnorm(1000),
 <p>Let’s compare which is the fastest method (using package microbenchmark and ggplot2 to visualize the comparison)</p>
 <pre class="r"><code>library(microbenchmark)
 library(ggplot2)
-mbm &lt;- microbenchmark(df$var1, df[, &quot;var1&quot;], df[, 1], 
+mbm &lt;- microbenchmark(df$var1, df[, &quot;var1&quot;], df[, 1],
                       df[[1]], df[[&quot;var1&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
@@ -34,20 +34,20 @@ autoplot(mbm)</code></pre>
 <pre class="r"><code>mbm</code></pre>
 <pre><code>## Unit: microseconds
 ##          expr   min    lq     mean median    uq    max neval cld
-##       df$var1 3.526 4.232 4.393513  4.232 4.584 23.273  1000  b 
+##       df$var1 3.526 4.232 4.393513  4.232 4.584 23.273  1000  b
 ##  df[, &quot;var1&quot;] 5.289 5.642 6.028585  5.643 5.995 48.661  1000   c
 ##       df[, 1] 5.289 5.642 5.906955  5.643 5.995 33.500  1000   c
-##       df[[1]] 2.821 3.174 3.520793  3.526 3.527 17.984  1000 a  
+##       df[[1]] 2.821 3.174 3.520793  3.526 3.527 17.984  1000 a
 ##  df[[&quot;var1&quot;]] 2.821 3.174 3.530294  3.527 3.527 10.932  1000 a</code></pre>
 <p><strong>I have tried this before and the dollar sign (<code>$</code>) was the fastest method to locate a variable in a data.frame, and by far. Double brackets were slighthly faster than single brackets and there was no noticeable difference between the use of variable names and index position. I originally ran this code in a MacBook Air running R version 3.0.2 (Frisbee Sailing). Then I did it again in my main machine (DELL XPS, i7-2630QM, 8GB in RAM, running Windows 7 64bits and R version 3.1.1) and the results were different (fastest method is double brackets, then dollar sign and finally single brackets). I guess all the differences (hardware, OS, R version) may have something to do with the results. Maybe later (some day) I will investigate further. Now, after I updated R in my MacBook Air, the results are similar to those presented here. Unfortunately, when I first did this, I didn’t care about reproducibility and forgot to record <code>sessionInfo()</code> or the version of the packages I was using. Lesson learnt, …, you can find such information at the end of this post</strong></p>
 <p>Now, let’s examine if there is any difference in the performance as we extract different variables from the data.frame (perhaps the order of the variables matter?)</p>
-<pre class="r"><code>mbm &lt;- microbenchmark(df$var1, df[, &quot;var1&quot;], df[, 1], 
-                      df[[1]], df[[&quot;var1&quot;]], 
-                      df$var2, df[, &quot;var2&quot;], df[, 2], 
-                      df[[2]], df[[&quot;var2&quot;]], 
-                      df$var5, df[, &quot;var5&quot;], df[, 5], 
-                      df[[5]], df[[&quot;var5&quot;]], 
-                      df$var7, df[, &quot;var7&quot;], df[, 7], 
+<pre class="r"><code>mbm &lt;- microbenchmark(df$var1, df[, &quot;var1&quot;], df[, 1],
+                      df[[1]], df[[&quot;var1&quot;]],
+                      df$var2, df[, &quot;var2&quot;], df[, 2],
+                      df[[2]], df[[&quot;var2&quot;]],
+                      df$var5, df[, &quot;var5&quot;], df[, 5],
+                      df[[5]], df[[&quot;var5&quot;]],
+                      df$var7, df[, &quot;var7&quot;], df[, 7],
                       df[[7]], df[[&quot;var7&quot;]],
                       times = 1000)
 autoplot(mbm)</code></pre>
@@ -61,27 +61,27 @@ df3 &lt;- data.frame(replicate(n = 70, expr = runif(1000)))
 df4 &lt;- data.frame(replicate(n = 700, expr = runif(1000)))
 df5 &lt;- data.frame(replicate(n = 7000, expr = runif(1000)))
 
-mbm &lt;- microbenchmark(df1$X3, df1[, &quot;X3&quot;], df1[, 3], 
+mbm &lt;- microbenchmark(df1$X3, df1[, &quot;X3&quot;], df1[, 3],
                       df1[[3]], df1[[&quot;X3&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
 <p><img src="/post/2014-09-02_performance_extract_variable_files/figure-html/obs_benchmark-1.png" width="672" /></p>
-<pre class="r"><code>mbm &lt;- microbenchmark(df2$X3, df2[, &quot;X3&quot;], df2[, 3], 
+<pre class="r"><code>mbm &lt;- microbenchmark(df2$X3, df2[, &quot;X3&quot;], df2[, 3],
                       df2[[3]], df2[[&quot;X3&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
 <p><img src="/post/2014-09-02_performance_extract_variable_files/figure-html/obs_benchmark-2.png" width="672" /></p>
-<pre class="r"><code>mbm &lt;- microbenchmark(df3$X3, df3[, &quot;X3&quot;], df3[, 3], 
+<pre class="r"><code>mbm &lt;- microbenchmark(df3$X3, df3[, &quot;X3&quot;], df3[, 3],
                       df3[[3]], df3[[&quot;X3&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
 <p><img src="/post/2014-09-02_performance_extract_variable_files/figure-html/obs_benchmark-3.png" width="672" /></p>
-<pre class="r"><code>mbm &lt;- microbenchmark(df4$X3, df4[, &quot;X3&quot;], df4[, 3], 
+<pre class="r"><code>mbm &lt;- microbenchmark(df4$X3, df4[, &quot;X3&quot;], df4[, 3],
                       df4[[3]], df4[[&quot;X3&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
 <p><img src="/post/2014-09-02_performance_extract_variable_files/figure-html/obs_benchmark-4.png" width="672" /></p>
-<pre class="r"><code>mbm &lt;- microbenchmark(df5$X3, df5[, &quot;X3&quot;], df5[, 3], 
+<pre class="r"><code>mbm &lt;- microbenchmark(df5$X3, df5[, &quot;X3&quot;], df5[, 3],
                       df5[[3]], df5[[&quot;X3&quot;]], times = 1000)
 autoplot(mbm)</code></pre>
 <pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
@@ -93,35 +93,35 @@ autoplot(mbm)</code></pre>
 <pre><code>## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 17134)
-## 
+##
 ## Matrix products: default
-## 
+##
 ## locale:
-## [1] LC_COLLATE=English_United States.1252 
-## [2] LC_CTYPE=English_United States.1252   
+## [1] LC_COLLATE=English_United States.1252
+## [2] LC_CTYPE=English_United States.1252
 ## [3] LC_MONETARY=English_United States.1252
-## [4] LC_NUMERIC=C                          
-## [5] LC_TIME=English_United States.1252    
-## 
+## [4] LC_NUMERIC=C
+## [5] LC_TIME=English_United States.1252
+##
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
+## [1] stats     graphics  grDevices utils     datasets  methods   base
+##
 ## other attached packages:
-##  [1] microbenchmark_1.4-4 pander_0.6.1         knitr_1.20          
-##  [4] readxl_1.1.0         readr_1.1.1          tidyr_0.8.1         
-##  [7] magrittr_1.5         dplyr_0.7.6          gtable_0.2.0        
-## [10] gridExtra_2.3        ggplot2_3.0.0        efunc_0.0.0.9000    
-## 
+##  [1] microbenchmark_1.4-4 pander_0.6.1         knitr_1.20
+##  [4] readxl_1.1.0         readr_1.1.1          tidyr_0.8.1
+##  [7] magrittr_1.5         dplyr_0.7.6          gtable_0.2.0
+## [10] gridExtra_2.3        ggplot2_3.0.0        efunc_0.0.0.9000
+##
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.17     cellranger_1.1.0 pillar_1.2.3     compiler_3.5.0  
-##  [5] plyr_1.8.4       bindr_0.1.1      tools_3.5.0      digest_0.6.15   
-##  [9] lattice_0.20-35  evaluate_0.10.1  tibble_1.4.2     pkgconfig_2.0.1 
-## [13] rlang_0.2.2      Matrix_1.2-14    yaml_2.1.19      mvtnorm_1.0-8   
-## [17] blogdown_0.8     xfun_0.3         bindrcpp_0.2.2   withr_2.1.2     
-## [21] stringr_1.3.1    hms_0.4.2        rprojroot_1.3-2  grid_3.5.0      
-## [25] tidyselect_0.2.4 glue_1.2.0       R6_2.2.2         survival_2.41-3 
-## [29] rmarkdown_1.10   bookdown_0.7     multcomp_1.4-8   TH.data_1.0-8   
-## [33] purrr_0.2.5      codetools_0.2-15 MASS_7.3-49      splines_3.5.0   
+##  [1] Rcpp_0.12.17     cellranger_1.1.0 pillar_1.2.3     compiler_3.5.0
+##  [5] plyr_1.8.4       bindr_0.1.1      tools_3.5.0      digest_0.6.15
+##  [9] lattice_0.20-35  evaluate_0.10.1  tibble_1.4.2     pkgconfig_2.0.1
+## [13] rlang_0.2.2      Matrix_1.2-14    yaml_2.1.19      mvtnorm_1.0-8
+## [17] blogdown_0.8     xfun_0.3         bindrcpp_0.2.2   withr_2.1.2
+## [21] stringr_1.3.1    hms_0.4.2        rprojroot_1.3-2  grid_3.5.0
+## [25] tidyselect_0.2.4 glue_1.2.0       R6_2.2.2         survival_2.41-3
+## [29] rmarkdown_1.10   bookdown_0.7     multcomp_1.4-8   TH.data_1.0-8
+## [33] purrr_0.2.5      codetools_0.2-15 MASS_7.3-49      splines_3.5.0
 ## [37] backports_1.1.2  scales_0.5.0     htmltools_0.3.6  assertthat_0.2.0
-## [41] colorspace_1.3-2 sandwich_2.4-0   stringi_1.2.3    lazyeval_0.2.1  
+## [41] colorspace_1.3-2 sandwich_2.4-0   stringi_1.2.3    lazyeval_0.2.1
 ## [45] munsell_0.5.0    zoo_1.8-2</code></pre>
