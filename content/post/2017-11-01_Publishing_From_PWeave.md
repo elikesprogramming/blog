@@ -47,7 +47,7 @@ ax.violinplot(tips["total_bill"], vert=False)
 plt.show()
 ```
 
-![](../../static/post/PWeave_Figures/2017-11-01_Publishing_From_PWeave_figure1_1.png)\
+![](PWeave_Figures/2017-11-01_Publishing_From_PWeave_figure1_1.png)\
 
 
 The Hamming window:
