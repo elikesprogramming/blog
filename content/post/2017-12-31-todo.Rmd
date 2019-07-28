@@ -8,5 +8,5 @@ categories:
 tags: []
 ---
 
-TODO: include all posts in this blogdown-generated site
+TODO: let's include all posts in this blogdown-generated site and move everything
 
