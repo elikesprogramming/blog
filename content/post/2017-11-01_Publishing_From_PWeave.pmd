@@ -30,6 +30,7 @@ RmarkDown came to the scene.
 
 
 
+# Blogdown integration
 
 If you are not using a , in `blogdown` images are located in the static/post
 directory that is then published as /post by netlify. So tipically an image
@@ -56,16 +57,19 @@ prone in case the date is not available or who knows.
 
 So let's write a function to do it.
 
-```python
+```
 import pweave
 def pweave_blogdown(file, doctype = "markdown"):
     return 1
 import os
 os.getcwd()
 pweave.weave(
-    file = "D:\\MEGA\\R\\blog/content/post/2017-11-01_Publishing_From_PWeave.pmd",
+    file = "D:\\MEGA\\R\\blog\\content\\post\\2017-11-01_Publishing_From_PWeave.pmd",
     doctype = "markdown"
 )
+
+pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+
 
 
 ```
