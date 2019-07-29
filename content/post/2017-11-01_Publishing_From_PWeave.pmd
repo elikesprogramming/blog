@@ -25,8 +25,55 @@ into, also, several formats (e.g. markdown, html). It seems it was inspired by
 Sweave, which was the most common literate programming approach before
 RmarkDown came to the scene.
 
-% ```python
-% ```
+%% ```python
+%% ```
+
+
+
+
+If you are not using a , in `blogdown` images are located in the static/post
+directory that is then published as /post by netlify. So tipically an image
+is referenced from html or markdown files as /post/post_dir/figure-html/x.png
+
+PWeave on the other hand by default generate images in the ./images directory.
+
+So, to get it to work, you can change the figures directory, for example,
+using the [command line args](http://mpastell.com/pweave/script.html).
+
+So let's do that. Then assuming the post .pmd source file is located in the
+standard directory content/post and considering the imagens need to be in
+the static/post directory, let's change to something like that. That way, the
+figures will be generated in the correct location and you just need to add the
+files and push the changes to the repository for netlify to process the changes.
+
+However, you need to sort of manually change the generated markdown file, to
+amend the location of the figures. Changing it from the relative path
+(../../post) to the absolute path /post, since that will be the location in
+netlify. Alternatively, realizing that netlify arranges the file by
+year/month/post_title/index.html you could try to fix the reference also to
+a relative path.  But that seems like a silly option in comparison, and error
+prone in case the date is not available or who knows.
+
+So let's write a function to do it.
+
+```python
+import pweave
+def pweave_blogdown(file, doctype = "markdown"):
+    return 1
+import os
+os.getcwd()
+pweave.weave(
+    file = "D:\\MEGA\\R\\blog/content/post/2017-11-01_Publishing_From_PWeave.pmd",
+    doctype = "markdown"
+)
+
+
+```
+
+
+
+
+
 
 ```python
 # Import the necessary libraries
