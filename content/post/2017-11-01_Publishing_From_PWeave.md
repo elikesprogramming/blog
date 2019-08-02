@@ -2,14 +2,14 @@
 title: Publishing blog posts from PWeave
 author: elikesprogramming
 date: '2017-11-01'
-mathjax : ture
+mathjax : true
 categories:
   - Python
 tags:
   - PWeave
 ---
 
-This blog started mostly as an archive for R-related things as I was starting
+Hey, This blog started mostly as an archive for R-related things as I was starting
 to use R as my main tool / language for data analysis. For a while, I've been
 also using Python. Looking for a literate programming alterative in Python
 I found [Pweave](http://mpastell.com/pweave). So I'd like to also use this blog

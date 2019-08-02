@@ -10,3 +10,7 @@ tags: []
 
 TODO: let's include all posts in this blogdown-generated site and move everything
 
+It seems Mathjax works out of the box in blogdown.
+
+$y=x^2$
+
