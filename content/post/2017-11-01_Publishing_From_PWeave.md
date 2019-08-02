@@ -57,10 +57,10 @@ a relative path. But that seems like a silly option in comparison, and
 error-prone in case the date is not available or who knows.
 
 [//]: cd "D:\\MEGA\\R\\blog\\content\\post"
-[//]: pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
-[//]: pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
-[//]: pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
-[//]: sed -i 's+../../static++g' .\2017-11-01_Publishing_From_PWeave.md
+[//]: pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
+[//]: pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
+[//]: pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
+[//]: sed -i 's+++g' .\2017-11-01_Publishing_From_PWeave.md
 
 # PWeave supported features
 
@@ -87,7 +87,7 @@ ax.violinplot(tips["total_bill"], vert=False)
 plt.show()
 ```
 
-![](../../static/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure1_1.png)\
+![](/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure1_1.png)\
 
 
 
@@ -112,7 +112,7 @@ axs[1, 1].hist2d(data[0], data[1])
 plt.show()
 ```
 
-![](../../static/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure2_1.png)\
+![](/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure2_1.png)\
 
 
 ## Mathjax
@@ -124,4 +124,4 @@ Easy way
 The Hamming window:
 $w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
 
-<p><span class="math inline">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46\)</span></p>
+<p><span class="math inline">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span>, where <span class="math inline">\(\alpha=0.54$ and $\beta=0.46\)</span></p>
