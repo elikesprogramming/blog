@@ -9,7 +9,7 @@ tags:
   - PWeave
 ---
 
-hey2 This blog started mostly as an archive for R-related things as I was starting
+Hey3, This blog started mostly as an archive for R-related things as I was starting
 to use R as my main tool / language for data analysis. For a while, I've been
 also using Python. Looking for a literate programming alterative in Python
 I found [Pweave](http://mpastell.com/pweave). So I'd like to also use this blog
@@ -117,7 +117,9 @@ plt.show()
 
 ## Mathjax
 
+Easy way
+
+<p><span class="math inline">\(y=x^2\)</span></p>
+
 The Hamming window:
-<span class="math inline">
-\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\), where $\alpha=0.54$ and $\beta=0.46$
-</span>
+$w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
