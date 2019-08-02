@@ -118,4 +118,6 @@ plt.show()
 ## Mathjax
 
 The Hamming window:
+<span class="math inline">
 $w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
+</span>
