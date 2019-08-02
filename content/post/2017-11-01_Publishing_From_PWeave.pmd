@@ -2,7 +2,7 @@
 title: Publishing blog posts from PWeave
 author: elikesprogramming
 date: '2017-11-01'
-mathjax : ture
+mathjax : true
 categories:
   - Python
 tags:
