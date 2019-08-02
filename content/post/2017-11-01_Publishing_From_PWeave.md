@@ -56,13 +56,11 @@ year/month/post_title/index.html you could try to fix the reference also to
 a relative path. But that seems like a silly option in comparison, and
 error-prone in case the date is not available or who knows.
 
-[//]: # cd to the directory where the blog source is located (BLOG_PATH/content/post)
+[//]: # (cd to the directory where the blog source is located (BLOG_PATH/content/post))
 
-[//]: # pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
+[//]: # (pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave)
 
-[//]: # pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
-
-[//]: # pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave
+[//]: # (pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave)
 
 [//]: # sed -i 's+++g' .\2017-11-01_Publishing_From_PWeave.md
 
@@ -123,8 +121,8 @@ plt.show()
 
 Easy way
 
-[//]: # this is how blogdown does it. Wrap it up in a math inline css class.
-[//]: # it becomes somewhat verbose, but it works.
+[//]: # (this is how blogdown does it. Wrap it up in a math inline css class.)
+[//]: # (it becomes somewhat verbose, but it works.)
 [//]: # otherwise you would have to mess with Hugo, including the proper
 [//]: # libraries and so on in the header.html or footer.html or something like
 [//]: # that, ..., or even worse, not generating a markdown file but an html
