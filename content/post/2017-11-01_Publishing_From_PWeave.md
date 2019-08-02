@@ -119,9 +119,18 @@ plt.show()
 
 Easy way
 
+[//]: this is how blogdown does it. Wrap it up in a math inline css class.
+[//]: it becomes somewhat verbose, but it works.
+[//]: otherwise you would have to mess with Hugo, including the proper
+[//]: libraries and so on in the header.html or footer.html or something like
+[//]: that, ..., or even worse, not generating a markdown file but an html
+[//]: file, then PWeave does that for you, but then you would have to deal
+[//]: with getting the yaml headers rigth in the html file, and getting rid of
+[//]: the html headers gibber jabber, so that dates and summary are properly
+[//]: displayed in the blog entries page
+
 <p><span class="math inline">\(y=x^2\)</span></p>
 
-The Hamming window:
-$w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
+[//]: $w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
 
-<p><span class="math inline">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span>, where <span class="math inline">\(\alpha=0.54$ and $\beta=0.46\)</span></p>
+<p><span class="math inline">\(w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}\)</span>, where <span class="math inline">\(\alpha=0.54<span class="math inline">\( and \)</span>\beta=0.46\)</span></p>
