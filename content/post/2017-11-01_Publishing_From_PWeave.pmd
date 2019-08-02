@@ -57,9 +57,13 @@ a relative path. But that seems like a silly option in comparison, and
 error-prone in case the date is not available or who knows.
 
 [//]: cd to the directory where the blog source is located (BLOG_PATH/content/post)
+
 [//]: pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+
 [//]: pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+
 [//]: pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+
 [//]: sed -i 's+../../static++g' .\2017-11-01_Publishing_From_PWeave.md
 
 # PWeave supported features
