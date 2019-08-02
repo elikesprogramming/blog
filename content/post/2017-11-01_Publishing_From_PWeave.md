@@ -68,6 +68,7 @@ error-prone in case the date is not available or who knows.
 
 It supports `matplotlib` plots.
 
+
 ```python
 # Import the necessary libraries
 import matplotlib.pyplot as plt
@@ -85,6 +86,10 @@ ax.violinplot(tips["total_bill"], vert=False)
 # Show the plot
 plt.show()
 ```
+
+![](../../static/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure1_1.png)\
+
+
 
 
 
@@ -106,6 +111,9 @@ axs[1, 1].hist2d(data[0], data[1])
 
 plt.show()
 ```
+
+![](../../static/post/2017-11-01_Publishing_From_PWeave/2017-11-01_Publishing_From_PWeave_figure2_1.png)\
+
 
 ## Mathjax
 
