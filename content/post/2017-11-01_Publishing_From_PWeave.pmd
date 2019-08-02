@@ -56,15 +56,15 @@ year/month/post_title/index.html you could try to fix the reference also to
 a relative path. But that seems like a silly option in comparison, and
 error-prone in case the date is not available or who knows.
 
-[//]: cd to the directory where the blog source is located (BLOG_PATH/content/post)
+[//]: # cd to the directory where the blog source is located (BLOG_PATH/content/post)
 
-[//]: pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+[//]: # pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
 
-[//]: pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+[//]: # pweave -f html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
 
-[//]: pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
+[//]: # pweave -f md2html 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=../../static/post/2017-11-01_Publishing_From_PWeave
 
-[//]: sed -i 's+../../static++g' .\2017-11-01_Publishing_From_PWeave.md
+[//]: # sed -i 's+../../static++g' .\2017-11-01_Publishing_From_PWeave.md
 
 # PWeave supported features
 
@@ -115,15 +115,15 @@ plt.show()
 
 Easy way
 
-[//]: this is how blogdown does it. Wrap it up in a math inline css class.
-[//]: it becomes somewhat verbose, but it works.
-[//]: otherwise you would have to mess with Hugo, including the proper
-[//]: libraries and so on in the header.html or footer.html or something like
-[//]: that, ..., or even worse, not generating a markdown file but an html
-[//]: file, then PWeave does that for you, but then you would have to deal
-[//]: with getting the yaml headers rigth in the html file, and getting rid of
-[//]: the html headers gibber jabber, so that dates and summary are properly
-[//]: displayed in the blog entries page
+[//]: # this is how blogdown does it. Wrap it up in a math inline css class.
+[//]: # it becomes somewhat verbose, but it works.
+[//]: # otherwise you would have to mess with Hugo, including the proper
+[//]: # libraries and so on in the header.html or footer.html or something like
+[//]: # that, ..., or even worse, not generating a markdown file but an html
+[//]: # file, then PWeave does that for you, but then you would have to deal
+[//]: # with getting the yaml headers rigth in the html file, and getting rid of
+[//]: # the html headers gibber jabber, so that dates and summary are properly
+[//]: # displayed in the blog entries page
 
 <p><span class="math inline">\(y=x^2\)</span></p>
 
