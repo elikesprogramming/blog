@@ -57,9 +57,9 @@ error-prone in case the date is not available or who knows.
 
 So, then you would have to do something like:
 
-- cd to the directory where the blog source is located (BLOG_PATH/content/post))
-- pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave)
-- sed -i 's+++g' .\2017-11-01_Publishing_From_PWeave.md
+- cd to the directory where the blog source is located (`BLOG_PATH/content/post`)
+- `pweave -f markdown 2017-11-01_Publishing_From_PWeave.pmd --figure-directory=/post/2017-11-01_Publishing_From_PWeave`
+- `sed -i 's+++g' .\2017-11-01_Publishing_From_PWeave.md`
 
 # PWeave supported features
 
