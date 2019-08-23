@@ -159,11 +159,14 @@ file you need to be online).
 
 Then, you need to use `display_html` from `IPython.display` with `raw=True` to
 include the code in the output file. Otherwise, Pweave would escape it and
-you would lose all the html markup.
+you would lose all the html markup. Ok, here's a weird thing: if you pweave the
+pmd to html, `display_html` works, but if you want to generate a markdown file
+it seems you need to use `display_markdown` (weird in the sense that I do not
+like it).
 
 And I think that's it. Here's the example.
 
-```python
+```python, results = 'raw'
 # Basic plotly example from the official web page
 import plotly
 import plotly.graph_objects as go
@@ -178,8 +181,10 @@ plotly_div = plotly.offline.plot(
     output_type='div'
 )
 
-from IPython.display import display_html
-display_html(plotly_div, raw=True)
+#from IPython.display import display_html
+#display_html(plotly_div, raw=True)
+from IPython.display import display_markdown
+display_markdown(plotly_div, raw=True)
 ```
 
 
