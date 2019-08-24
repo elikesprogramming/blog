@@ -152,6 +152,7 @@ case, files that later will be converted into html by other tool -Hugo via
 netlify in my case-, otherwise, perhaps it makes no sense at all), then you
 have to work a little bit more. Here's the example:
 
+
 ```python
 # Original example taken from http://mpastell.com/pweave/bokeh.html
 # This works smoothly if you pweave into html (md2html)
@@ -163,6 +164,12 @@ from pweave.bokeh import output_pweave, show
 
 # So let's just tweak the original function to make it work for markdown
 # https://github.com/mpastell/Pweave/blob/master/pweave/bokeh/__init__.py
+
+# For it to work, all the output should be within a single container (div)
+from IPython.display import display_markdown
+display_markdown('<div>', raw=True)
+
+# Then just do the same from output_pweave(), but with display_markdown
 from bokeh.resources import CDN
 out = CDN.render_css()
 out += CDN.render_js()
@@ -185,7 +192,13 @@ script, div = components(p)
 out = script
 out+= div
 display_markdown(out, raw=True)
+
+# Do not forget to close the div
+display_markdown('</div>', raw=True)
 ```
+
+So, yeah, it works. But it is somewhat cumbersome. It would be better that
+Pweave would detect the target file and fix the output accordingly. Maybe a PR? 
 
 ## Interactive plots via plotly
 
