@@ -163,6 +163,7 @@ from pweave.bokeh import output_pweave, show
 
 # So let's just tweak the original function to make it work for markdown
 # https://github.com/mpastell/Pweave/blob/master/pweave/bokeh/__init__.py
+from bokeh.resources import CDN
 out = CDN.render_css()
 out += CDN.render_js()
 from IPython.display import display_markdown
