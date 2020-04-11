@@ -499,7 +499,7 @@ plot_lift_curve(y_test, y_prob)
 
 Good, above you have code examples for the most common evaluation metrics and
 a short description of them and their pros and cons. Just let me remember
-myself that it is not usually a good idea to rely only on one metric but rather
+myself that sometimes may not be a good idea to rely only on one metric but rather
 analyze several metrics, always having in mind the issues of the case under
 study (like the imbalance in this case).
 
@@ -511,8 +511,7 @@ with:
   considering imbalanced data.
 - Some feature pre-processing, in particular, correctly handling categorical
   variables because for most variables in this dataset it makes no
-  sense at all to use them as numerical predictors so we need to see how to
-  handle that.
+  sense at all to use them as numerical predictors.
   (two expected challenges: it would take longer to fit the model and let's see
   how scikit learn handles feature importance for categorical variables passed
   to the model for example as dummy variables -one hot encoding in scikit

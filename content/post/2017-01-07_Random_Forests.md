@@ -75,15 +75,21 @@ naturally ranks the predictors.
 
 
 ```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-452d898117ae> in
-<module>
-      6 from sklearn import metrics
-      7
-----> 8 from mlxtend.plotting import plot_confusion_matrix
-      9 import matplotlib.pyplot as plt
-     10 get_ipython().run_line_magic('matplotlib', 'inline')
-ModuleNotFoundError: No module named 'mlxtend'
+C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
+packages\sklearn\utils\deprecation.py:144: FutureWarning: The
+sklearn.metrics.scorer module is  deprecated in version 0.22 and will
+be removed in version 0.24. The corresponding classes / functions
+should instead be imported from sklearn.metrics. Anything that cannot
+be imported from sklearn.metrics is now part of the private API.
+  warnings.warn(message, FutureWarning)
+C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
+packages\sklearn\utils\deprecation.py:144: FutureWarning: The
+sklearn.feature_selection.base module is  deprecated in version 0.22
+and will be removed in version 0.24. The corresponding classes /
+functions should instead be imported from sklearn.feature_selection.
+Anything that cannot be imported from sklearn.feature_selection is now
+part of the private API.
+  warnings.warn(message, FutureWarning)
 ```
 
 
@@ -179,15 +185,8 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-05391f582f8f> in
-<module>
-     14
-     15 # Fit the model
----> 16 with TicToc(): # TicToc just to time it
-     17     rforestclf.fit(X_train, y_train)
-     18
-NameError: name 'TicToc' is not defined
+Elapsed time is 8.912079 seconds.
+Elapsed time is 0.633044 seconds.
 ```
 
 
@@ -212,11 +211,7 @@ metrics.accuracy_score(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-eb27c3a21518> in
-<module>
-----> 1 metrics.accuracy_score(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+0.942251846947834
 ```
 
 
@@ -236,11 +231,7 @@ metrics.balanced_accuracy_score(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-2fdf46c67bd9> in
-<module>
-----> 1 metrics.balanced_accuracy_score(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+0.827683444232459
 ```
 
 
@@ -260,11 +251,7 @@ metrics.cohen_kappa_score(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-79a0dcc6294a> in
-<module>
-----> 1 metrics.cohen_kappa_score(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+0.7155314036982154
 ```
 
 
@@ -279,11 +266,8 @@ metrics.confusion_matrix(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-6cb81a18e544> in
-<module>
-----> 1 metrics.confusion_matrix(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+array([[56936,  1089],
+       [ 2749,  5687]], dtype=int64)
 ```
 
 
@@ -300,12 +284,11 @@ pd.crosstab(y_test, y_pred, rownames=["Observed"],
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-bbe4502a7ff7> in
-<module>
-----> 1 pd.crosstab(y_test, y_pred, rownames=["Observed"],
-      2             colnames=["Predicted"], margins=True)
-NameError: name 'y_pred' is not defined
+Predicted      1     2    All
+Observed
+1          56936  1089  58025
+2           2749  5687   8436
+All        59685  6776  66461
 ```
 
 
@@ -335,52 +318,18 @@ fig, ax = plot_confusion_matrix(
 plt.show()
 ```
 
-```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-0f5124118f36> in
-<module>
-----> 1 from mlxtend.plotting import plot_confusion_matrix
-      2 import matplotlib.pyplot as plt
-      3 import numpy as np
-      4
-      5 fig, ax = plot_confusion_matrix(
-ModuleNotFoundError: No module named 'mlxtend'
-```
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
 
 
-
-
-```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-7fdf28b1d0dd> in
-<module>
-      1 # This is just to make it readable, otherwise the inline codes
-below
-      2 # would be a mess
-----> 3 tn, fp, fn, tp = metrics.confusion_matrix(y_test,
-y_pred).ravel()
-      4 tot = fn + tp
-      5 fnr = "{:.1%}".format(fn / tot) # false negative rate
-NameError: name 'y_pred' is not defined
-```
 
 
 Much better. The first plot immediately reveals that there is an issue with
 imbalanced data and the need to take a look at a normalized confusion matrix.
 Then in the normalized matrix you can quickly spot that the model does not
-perform good for the low-frequency class. Out of the ---------------------------------------------------------------------------NameError                                 Traceback (most recent call last)<ipython-input-1-25d69dab0dee> in <module>
-----> 1 tot
-NameError: name 'tot' is not defined minority-class
-observations, the model correctly classifies only ---------------------------------------------------------------------------NameError                                 Traceback (most recent call last)<ipython-input-1-6fc78332fdd4> in <module>
-----> 1 tp
-NameError: name 'tp' is not defined (---------------------------------------------------------------------------NameError                                 Traceback (most recent call last)<ipython-input-1-c5b0b18424a0> in <module>
-----> 1 tpr
-NameError: name 'tpr' is not defined) and a
-whooping ---------------------------------------------------------------------------NameError                                 Traceback (most recent call last)<ipython-input-1-46946ee17d21> in <module>
-----> 1 fnr
-NameError: name 'fnr' is not defined (---------------------------------------------------------------------------NameError                                 Traceback (most recent call last)<ipython-input-1-4e700bf7e955> in <module>
-----> 1 fn
-NameError: name 'fn' is not defined obs) were wrongly classified.
+perform good for the low-frequency class. Out of the 8436 minority-class
+observations, the model correctly classifies only 5687 ('67.4%') and a
+whooping '32.6%' (2749 obs) were wrongly classified.
 
 ## Classification report
 It "builds a text report showing the main classification metrics". The
@@ -404,11 +353,14 @@ print(metrics.classification_report(y_test, y_pred))
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-8d6bf0be5d98> in
-<module>
-----> 1 print(metrics.classification_report(y_test, y_pred))
-NameError: name 'y_pred' is not defined
+              precision    recall  f1-score   support
+
+           1       0.95      0.98      0.97     58025
+           2       0.84      0.67      0.75      8436
+
+    accuracy                           0.94     66461
+   macro avg       0.90      0.83      0.86     66461
+weighted avg       0.94      0.94      0.94     66461
 ```
 
 
@@ -437,15 +389,10 @@ metrics.precision_recall_fscore_support(y_test, y_pred, beta=1)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-b42c964f3012> in
-<module>
-----> 1 metrics.precision_score(y_test, y_pred)
-      2 metrics.precision_score(y_test, y_pred, pos_label=2)
-      3 metrics.recall_score(y_test, y_pred)
-      4 metrics.recall_score(y_test, y_pred, pos_label=1)
-      5 metrics.recall_score(y_test, y_pred, pos_label=2)
-NameError: name 'y_pred' is not defined
+(array([0.95394153, 0.83928571]),
+ array([0.98123223, 0.67413466]),
+ array([0.96739444, 0.74769918]),
+ array([58025,  8436], dtype=int64))
 ```
 
 
@@ -461,11 +408,7 @@ metrics.hamming_loss(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-d6e1f5d2ba43> in
-<module>
-----> 1 metrics.hamming_loss(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+0.057748153052165935
 ```
 
 
@@ -481,11 +424,7 @@ metrics.matthews_corrcoef(y_test, y_pred)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-0edcb8507cfd> in
-<module>
-----> 1 metrics.matthews_corrcoef(y_test, y_pred)
-NameError: name 'y_pred' is not defined
+0.7210096175078716
 ```
 
 
@@ -503,12 +442,7 @@ metrics.jaccard_score(y_test, y_pred, pos_label=2)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-1a9720abeae2> in
-<module>
-----> 1 metrics.jaccard_score(y_test, y_pred)
-      2 metrics.jaccard_score(y_test, y_pred, pos_label=2)
-NameError: name 'y_pred' is not defined
+0.5970603674540682
 ```
 
 
@@ -545,38 +479,7 @@ plt.ylabel("True Positive Rate / hit rate / recall / sensitivity")
 plt.show()
 ```
 
-```
----------------------------------------------------------------------------NotFittedError
-Traceback (most recent call last)<ipython-input-1-dc3a341f9d45> in
-<module>
-      1 # Need to predict probabilities instead of class labels
-directly for the ROC-AUC
-----> 2 y_prob = rforestclf.predict_proba(X_test)
-      3 y_prob = y_prob[:, 1]
-      4 fpr, tpr, thresholds = metrics.roc_curve(y_test, y_prob,
-pos_label=2)
-      5 auc = metrics.roc_auc_score(y_test, y_prob)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\ensemble\forest.py
-in predict_proba(self, X)
-    584             classes corresponds to that in the attribute
-`classes_`.
-    585         """
---> 586         check_is_fitted(self, 'estimators_')
-    587         # Check data
-    588         X = self._validate_X_predict(X)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\utils\validation.py
-in check_is_fitted(estimator, attributes, msg, all_or_any)
-    912
-    913     if not all_or_any([hasattr(estimator, attr) for attr in
-attributes]):
---> 914         raise NotFittedError(msg % {'name':
-type(estimator).__name__})
-    915
-    916
-NotFittedError: This RandomForestClassifier instance is not fitted
-yet. Call 'fit' with appropriate arguments before using this method.
-```
-
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -592,37 +495,10 @@ plot_roc(y_test, y_prob, ax=ax) # you can customize it. get rid of microaverages
 ```
 
 ```
----------------------------------------------------------------------------NotFittedError
-Traceback (most recent call last)<ipython-input-1-2b001cda7bd6> in
-<module>
-      1 # Note that here you do not have to select just one class like
-above
-----> 2 y_prob = rforestclf.predict_proba(X_test)
-      3 from scikitplot.metrics import plot_roc
-      4 fig, ax = plt.subplots()
-      5 plot_roc(y_test, y_prob, ax=ax) # you can customize it. get
-rid of microaverages
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\ensemble\forest.py
-in predict_proba(self, X)
-    584             classes corresponds to that in the attribute
-`classes_`.
-    585         """
---> 586         check_is_fitted(self, 'estimators_')
-    587         # Check data
-    588         X = self._validate_X_predict(X)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\utils\validation.py
-in check_is_fitted(estimator, attributes, msg, all_or_any)
-    912
-    913     if not all_or_any([hasattr(estimator, attr) for attr in
-attributes]):
---> 914         raise NotFittedError(msg % {'name':
-type(estimator).__name__})
-    915
-    916
-NotFittedError: This RandomForestClassifier instance is not fitted
-yet. Call 'fit' with appropriate arguments before using this method.
+<matplotlib.axes._subplots.AxesSubplot at 0x1962b5646c8>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
 
 
 ## Precision Recall curve
@@ -650,36 +526,7 @@ plt.ylabel("Precision")
 plt.show()
 ```
 
-```
----------------------------------------------------------------------------NotFittedError
-Traceback (most recent call last)<ipython-input-1-8cfdb19cfff0> in
-<module>
-----> 1 y_prob = rforestclf.predict_proba(X_test)
-      2 y_prob = y_prob[:, 1]
-      3 precision, recall, threshold = metrics.precision_recall_curve(
-      4     y_test, y_prob, pos_label=2
-      5 )
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\ensemble\forest.py
-in predict_proba(self, X)
-    584             classes corresponds to that in the attribute
-`classes_`.
-    585         """
---> 586         check_is_fitted(self, 'estimators_')
-    587         # Check data
-    588         X = self._validate_X_predict(X)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\utils\validation.py
-in check_is_fitted(estimator, attributes, msg, all_or_any)
-    912
-    913     if not all_or_any([hasattr(estimator, attr) for attr in
-attributes]):
---> 914         raise NotFittedError(msg % {'name':
-type(estimator).__name__})
-    915
-    916
-NotFittedError: This RandomForestClassifier instance is not fitted
-yet. Call 'fit' with appropriate arguments before using this method.
-```
-
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -694,34 +541,10 @@ plot_precision_recall(y_test, y_prob, ax=ax)
 ```
 
 ```
----------------------------------------------------------------------------NotFittedError
-Traceback (most recent call last)<ipython-input-1-3a8d6e9e1ddd> in
-<module>
-----> 1 y_prob = rforestclf.predict_proba(X_test)
-      2 from scikitplot.metrics import plot_precision_recall
-      3 fig, ax = plt.subplots()
-      4 plot_precision_recall(y_test, y_prob, ax=ax)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\ensemble\forest.py
-in predict_proba(self, X)
-    584             classes corresponds to that in the attribute
-`classes_`.
-    585         """
---> 586         check_is_fitted(self, 'estimators_')
-    587         # Check data
-    588         X = self._validate_X_predict(X)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\utils\validation.py
-in check_is_fitted(estimator, attributes, msg, all_or_any)
-    912
-    913     if not all_or_any([hasattr(estimator, attr) for attr in
-attributes]):
---> 914         raise NotFittedError(msg % {'name':
-type(estimator).__name__})
-    915
-    916
-NotFittedError: This RandomForestClassifier instance is not fitted
-yet. Call 'fit' with appropriate arguments before using this method.
+<matplotlib.axes._subplots.AxesSubplot at 0x1962a767088>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
 
 
 
@@ -743,14 +566,10 @@ plot_ks_statistic(y_test, y_prob)
 ```
 
 ```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-6f1810352318> in
-<module>
-----> 1 from scikitplot.metrics import plot_ks_statistic
-      2 plot_ks_statistic(y_test, y_prob)
-ModuleNotFoundError: No module named 'scikitplot'
+<matplotlib.axes._subplots.AxesSubplot at 0x1962b0a9ec8>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
 
 
 Interesting. The particular KS value is not that high, again, showing that the
@@ -786,37 +605,7 @@ fig, ax = plot_confusion_matrix(
 )
 ```
 
-```
----------------------------------------------------------------------------NotFittedError
-Traceback (most recent call last)<ipython-input-1-e8ae6d80e6e4> in
-<module>
-----> 1 y_prob = rforestclf.predict_proba(X_test)
-      2
-      3 from scikitplot.helpers import binary_ks_curve
-      4
-      5 thresholds, pct1, pct2, ks_statistic, max_distance_at, classes
-= binary_ks_curve(
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\ensemble\forest.py
-in predict_proba(self, X)
-    584             classes corresponds to that in the attribute
-`classes_`.
-    585         """
---> 586         check_is_fitted(self, 'estimators_')
-    587         # Check data
-    588         X = self._validate_X_predict(X)
-c:\users\ed_al\anaconda3\lib\site-packages\sklearn\utils\validation.py
-in check_is_fitted(estimator, attributes, msg, all_or_any)
-    912
-    913     if not all_or_any([hasattr(estimator, attr) for attr in
-attributes]):
---> 914         raise NotFittedError(msg % {'name':
-type(estimator).__name__})
-    915
-    916
-NotFittedError: This RandomForestClassifier instance is not fitted
-yet. Call 'fit' with appropriate arguments before using this method.
-```
-
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
 
 
 Cool, changing the threshold helps increasing considerably the recall, of
@@ -836,14 +625,10 @@ plot_calibration_curve(y_test, [y_prob])
 ```
 
 ```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-4cbb1ad105bc> in
-<module>
-----> 1 from scikitplot.metrics import plot_calibration_curve
-      2 plot_calibration_curve(y_test, [y_prob])
-ModuleNotFoundError: No module named 'scikitplot'
+<matplotlib.axes._subplots.AxesSubplot at 0x1962b065a08>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
 
 
 ## Cumulative gain plot
@@ -858,14 +643,10 @@ plot_cumulative_gain(y_test, y_prob)
 ```
 
 ```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-f89f73e3156f> in
-<module>
-----> 1 from scikitplot.metrics import plot_cumulative_gain
-      2 plot_cumulative_gain(y_test, y_prob)
-ModuleNotFoundError: No module named 'scikitplot'
+<matplotlib.axes._subplots.AxesSubplot at 0x1962b6cca88>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
 
 
 ## Lift curve
@@ -879,21 +660,17 @@ plot_lift_curve(y_test, y_prob)
 ```
 
 ```
----------------------------------------------------------------------------ModuleNotFoundError
-Traceback (most recent call last)<ipython-input-1-6a326f09446f> in
-<module>
-----> 1 from scikitplot.metrics import plot_lift_curve
-      2 plot_lift_curve(y_test, y_prob)
-ModuleNotFoundError: No module named 'scikitplot'
+<matplotlib.axes._subplots.AxesSubplot at 0x1962b21d7c8>
 ```
 
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
 
 
 ## Wrapping-up model evaluation
 
 Good, above you have code examples for the most common evaluation metrics and
 a short description of them and their pros and cons. Just let me remember
-myself that it is not usually a good idea to rely only on one metric but rather
+myself that sometimes may not be a good idea to rely only on one metric but rather
 analyze several metrics, always having in mind the issues of the case under
 study (like the imbalance in this case).
 
@@ -905,8 +682,7 @@ with:
   considering imbalanced data.
 - Some feature pre-processing, in particular, correctly handling categorical
   variables because for most variables in this dataset it makes no
-  sense at all to use them as numerical predictors so we need to see how to
-  handle that.
+  sense at all to use them as numerical predictors.
   (two expected challenges: it would take longer to fit the model and let's see
   how scikit learn handles feature importance for categorical variables passed
   to the model for example as dummy variables -one hot encoding in scikit
