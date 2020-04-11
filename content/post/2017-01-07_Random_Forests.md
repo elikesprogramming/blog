@@ -318,8 +318,8 @@ fig, ax = plot_confusion_matrix(
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
 
 
 
@@ -479,7 +479,7 @@ plt.ylabel("True Positive Rate / hit rate / recall / sensitivity")
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -498,7 +498,7 @@ plot_roc(y_test, y_prob, ax=ax) # you can customize it. get rid of microaverages
 <matplotlib.axes._subplots.AxesSubplot at 0x1962b5646c8>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
 
 
 ## Precision Recall curve
@@ -526,7 +526,7 @@ plt.ylabel("Precision")
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -544,7 +544,7 @@ plot_precision_recall(y_test, y_prob, ax=ax)
 <matplotlib.axes._subplots.AxesSubplot at 0x1962a767088>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
 
 
 
@@ -569,7 +569,7 @@ plot_ks_statistic(y_test, y_prob)
 <matplotlib.axes._subplots.AxesSubplot at 0x1962b0a9ec8>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
 
 
 Interesting. The particular KS value is not that high, again, showing that the
@@ -605,7 +605,7 @@ fig, ax = plot_confusion_matrix(
 )
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
 
 
 Cool, changing the threshold helps increasing considerably the recall, of
@@ -628,7 +628,7 @@ plot_calibration_curve(y_test, [y_prob])
 <matplotlib.axes._subplots.AxesSubplot at 0x1962b065a08>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
 
 
 ## Cumulative gain plot
@@ -646,7 +646,7 @@ plot_cumulative_gain(y_test, y_prob)
 <matplotlib.axes._subplots.AxesSubplot at 0x1962b6cca88>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
 
 
 ## Lift curve
@@ -663,7 +663,7 @@ plot_lift_curve(y_test, y_prob)
 <matplotlib.axes._subplots.AxesSubplot at 0x1962b21d7c8>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
 
 
 ## Wrapping-up model evaluation
