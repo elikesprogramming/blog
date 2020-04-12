@@ -1,5 +1,5 @@
 ---
-title: Random Forests using Python for the new year (part 2: feature importance)
+title: Random Forests using Python for the new year (part 2 feature importance)
 author: elikesprogramming
 date: '2017-01-15'
 categories:
