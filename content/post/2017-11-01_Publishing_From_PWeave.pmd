@@ -282,7 +282,6 @@ within the document.
 https://pypi.org/project/antiweb/0.2.2/
 
 # Session Info
-
 ```python, results='verbatim'
 from sinfo import sinfo
 sinfo_html = sinfo(html=True)

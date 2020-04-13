@@ -519,3 +519,11 @@ with:
   handle such cases)
 
 So those are issues to deal with in other posts.
+
+
+# Session Info
+```python, results='verbatim'
+from sinfo import sinfo
+sinfo_html = sinfo(html=True)
+display_markdown(sinfo_html.data, raw=True)
+```

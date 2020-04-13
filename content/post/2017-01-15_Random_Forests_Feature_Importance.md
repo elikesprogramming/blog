@@ -1,5 +1,5 @@
 ---
-title: Random Forests using Python for the new year (part 2 feature importance)
+title: Random Forests using Python for the new year (part 2 - feature importance)
 author: elikesprogramming
 date: '2017-01-15'
 categories:
@@ -17,9 +17,9 @@ But first let me fit again the naive model to work with.
 
 ```
 3.2.1
-0.2.2
-unknown
 0.10.1
+unknown
+0.2.2
 C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
 packages\sklearn\utils\deprecation.py:144: FutureWarning: The
 sklearn.metrics.scorer module is  deprecated in version 0.22 and will
@@ -71,9 +71,9 @@ with TicToc(): # TicToc just to time it
 ```
 
 
-Elapsed time is 9.173964 seconds.
-Elapsed time is 0.656994 seconds.
-Elapsed time is 0.644875 seconds.
+Elapsed time is 13.657817 seconds.
+Elapsed time is 0.908409 seconds.
+Elapsed time is 0.885320 seconds.
 
 
 # Feature importance
@@ -302,11 +302,11 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 36.545784 seconds.
-Elapsed time is 390.237982 seconds.
-Elapsed time is 37.515147 seconds.
-Elapsed time is 37.100158 seconds.
-Elapsed time is 37.541247 seconds.
+Elapsed time is 53.536462 seconds.
+Elapsed time is 557.019857 seconds.
+Elapsed time is 53.607416 seconds.
+Elapsed time is 54.427272 seconds.
+Elapsed time is 47.126068 seconds.
 ```
 
 
@@ -468,7 +468,7 @@ plt.show()
 ```
 
 ```
-Elapsed time is 358.889676 seconds.
+Elapsed time is 527.113085 seconds.
 ```
 
 ![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure14_1.png)\
@@ -517,7 +517,7 @@ plt.show()
 ```
 
 ```
-Elapsed time is 373.210535 seconds.
+Elapsed time is 463.429892 seconds.
 ```
 
 ![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure16_1.png)\
@@ -538,7 +538,7 @@ corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
 ```
 
 ```
-<pandas.io.formats.style.Styler at 0x28669e22888>
+<pandas.io.formats.style.Styler at 0x1326234d408>
 ```
 
 
@@ -550,7 +550,7 @@ corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
 ```
 
 ```
-<pandas.io.formats.style.Styler at 0x28669126148>
+<pandas.io.formats.style.Styler at 0x1326215bf48>
 ```
 
 
@@ -589,8 +589,8 @@ plt.show()
 ```
 
 ```
-Elapsed time is 10.025745 seconds.
-Elapsed time is 0.739269 seconds.
+Elapsed time is 10.819374 seconds.
+Elapsed time is 0.744690 seconds.
 ```
 
 ![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure19_1.png){width=350px}\
@@ -621,7 +621,7 @@ plt.show()
 ```
 
 ```
-Elapsed time is 350.565734 seconds.
+Elapsed time is 416.975056 seconds.
 ```
 
 ![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure20_1.png)\
@@ -629,3 +629,23 @@ Elapsed time is 350.565734 seconds.
 
 So I'll leave feature importances here and move on to how to deal with class
 imbalance, ..., in the next post.
+
+# Session Info
+
+```python
+from sinfo import sinfo
+sinfo_html = sinfo(html=True)
+display_markdown(sinfo_html.data, raw=True)
+```
+
+```
+---------------------------------------------------------------------------NameError
+Traceback (most recent call last)<ipython-input-1-4a49f0301618> in
+<module>
+      1 from sinfo import sinfo
+      2 sinfo_html = sinfo(html=True)
+----> 3 display_markdown(sinfo_html.data, raw=True)
+NameError: name 'display_markdown' is not defined
+```
+
+
