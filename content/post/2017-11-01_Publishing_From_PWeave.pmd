@@ -198,7 +198,7 @@ display_markdown('</div>', raw=True)
 ```
 
 So, yeah, it works. But it is somewhat cumbersome. It would be better that
-Pweave would detect the target file and fix the output accordingly. Maybe a PR? 
+Pweave would detect the target file and fix the output accordingly. Maybe a PR?
 
 ## Interactive plots via plotly
 
@@ -280,3 +280,10 @@ within the document.
 ## more?
 
 https://pypi.org/project/antiweb/0.2.2/
+
+# Session Info
+
+```python, results='raw'
+from sinfo import sinfo
+sinfo(html=True)
+```
