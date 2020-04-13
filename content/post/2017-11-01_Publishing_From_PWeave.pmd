@@ -283,7 +283,8 @@ https://pypi.org/project/antiweb/0.2.2/
 
 # Session Info
 
-```python, results='raw'
+```python, results='verbatim'
 from sinfo import sinfo
-sinfo(html=True)
+sinfo_html = sinfo(html=True)
+display_markdown(sinfo_html.data, raw=True)
 ```
