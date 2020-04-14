@@ -165,8 +165,8 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 9.668507 seconds.
-Elapsed time is 0.626744 seconds.
+Elapsed time is 9.684633 seconds.
+Elapsed time is 0.643846 seconds.
 ```
 
 
@@ -475,7 +475,7 @@ plot_roc(y_test, y_prob, ax=ax) # you can customize it. get rid of microaverages
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37e3fefc8>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed625a308>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
@@ -521,7 +521,7 @@ plot_precision_recall(y_test, y_prob, ax=ax)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37d11a988>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed53b1bc8>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
@@ -546,7 +546,7 @@ plot_ks_statistic(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37d1c5788>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed5331048>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
@@ -605,7 +605,7 @@ plot_calibration_curve(y_test, [y_prob])
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37e560a48>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed4cc5e48>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
@@ -623,7 +623,7 @@ plot_cumulative_gain(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37e3028c8>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed5378608>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
@@ -640,7 +640,7 @@ plot_lift_curve(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2b37d303d08>
+<matplotlib.axes._subplots.AxesSubplot at 0x26ed62c97c8>
 ```
 
 ![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
@@ -680,6 +680,7 @@ from IPython.display import display_markdown
 sinfo_html = sinfo(html=True, write_req_file=False)
 display_markdown(sinfo_html.data, raw=True)
 ```
+
 
 
 <details>
@@ -781,6 +782,6 @@ Python 3.7.6 | packaged by conda-forge | (default, Mar 23 2020, 22:22:21) [MSC v
 Windows-10-10.0.18362-SP0
 4 logical CPU cores, Intel64 Family 6 Model 142 Stepping 9, GenuineIntel
 -----
-Session information updated at 2020-04-14 16:36
+Session information updated at 2020-04-14 16:42
 </pre>
 </details>

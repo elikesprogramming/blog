@@ -518,7 +518,7 @@ So those are issues to deal with in other posts.
 
 
 # Session Info
-```python
+```python, results='html'
 from sinfo import sinfo
 from IPython.display import display_markdown
 sinfo_html = sinfo(html=True, write_req_file=False)

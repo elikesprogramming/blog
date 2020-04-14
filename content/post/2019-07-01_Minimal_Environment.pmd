@@ -1,0 +1,147 @@
+---
+title: Python data science environment and new project workflow
+author: elikesprogramming
+date: '2019-07-01'
+categories:
+  - Python
+tags:
+  - Environments, conda
+---
+
+Here's a concise and sort-of copy-paste thing to set-up a (minimal?) python
+environment for data science and the steps to quickly set everything up when
+starting a new project.
+
+I actually had something like this but using pip's requirements.txt file (even
+though I almost always use Anaconda). Now let's just switch to `conda`. This
+[blog post](https://medium.com/dunder-data/anaconda-is-bloated-set-up-a-lean-robust-data-science-environment-with-miniconda-and-conda-forge-b48e1ac11646)
+is most useful for this (although I don't necesarilly buy the idea to use
+Miniconda and go all the way and uninstall Anaconda), so I will follow it
+closely.
+
+# Set up a data science environment
+
+Run these lines below on your anaconda prompt.
+
+```python, evaluate=False
+conda activate
+conda remove --name ds_env --all -y
+
+conda create -n ds_env -y
+conda activate ds_env
+conda config --env --add channels conda-forge
+conda config --env --set channel_priority strict
+conda install -y jupyter pandas scikit-learn matplotlib numpy scipy python-language-server[all] plotly pweave psycopg2 sqlalchemy fastcache yapf chardet xlrd
+pip install python-datauri
+pip install pyunpack
+pip install file-read-backwards
+pip install -e C:\E\MEGA\Python\epytools
+pip install -e C:\Users\ed_al\OneDrive\Positiva\positiva_py
+python --version
+
+```
+
+pip install patoolib
+
+anaconda notebook jupyter
+mlxtend seaborn eli5 scikit-plot imbalanced-learn 
+fastparquet pyarrow 
+
+
+TODO: cookiecutter, should we include it?
+pyunpack patoolib
+ipython
+
+
+As you can see, it is actually not that minimal of an environment. But it has
+the tools I use in virtually every project. I just keep an eye on the tools that
+I keep installing in new projects, and if they come again and again, I just put
+them in this base environment.
+
+Ok, what about `pip`? Although
+["Issues may arise when using pip and conda together"](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#using-pip-in-an-environment)
+sometimes conda does not have the one package you need, or it is in a different
+channel and ends up being incompatible. I have faced this, and in the end it is
+usually easier to use the `pip` version than dealing with conda's
+inter-channels incompatibilities.
+
+```python, evaluate=False
+conda install -n ds_env pip
+```
+
+When everything is ready, I like to export this environment to a yml file that
+you can later access.
+
+```python, evaluate=False
+conda env export > environment.yml
+```
+
+And I leave this line here just in case you want to start from scratch ...
+```python, evaluate=False
+conda remove --name ds_env --all
+```
+
+And the link to the
+[conda cheatsheet](https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html).
+
+# A new project is about to start ...
+
+For the new project I usually need -as quickly as possible- to set up
+i) an environment and ii) a project structure
+
+## New project's environment
+
+For the new project's environment you can create a new environment as above,
+just changing the name. Or better, if you have already created the minimal
+environment, now you can clone it.
+
+```python, evaluate=False
+conda create --name my_new_cool_project_env --clone ds_env
+```
+
+Or use the `environment.yml` file exported above.
+
+```python, evaluate=False
+conda env create -f environment.yml
+```
+
+Perhaps you would like to override the name
+```python, evaluate=False
+conda env create -f environment.yml -n my_new_cool_project_env
+```
+
+## New project's structure
+
+Now, whenever there is a new project let's use
+[`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/readme.html) to
+initialize the project structure. `cookiecutter` is a nice tool that helps you
+to create project structure from given templates and it is very handy. It has
+several contributed templates for many different kind of projects. For example,
+`cookiecutter-pypackage` is very useful whenever you want to start a new python
+package.
+
+Now in my case, new projects are usually data science / data analysis projects
+and I like the template from
+[`cookiecutter-data-science`](https://github.com/drivendata/cookiecutter-data-science)
+fully explained and docummented
+[here](http://drivendata.github.io/cookiecutter-data-science/). I like it
+because it is complete enough even for relatively large or complex projects and
+does not have too much overhead for simple projects. In addition, you can always
+customize it to your needs. And finally, I really like it actually puts the
+source code into a python module, so you can easily import what you need all
+around the project (I change the name of the module, though. The default is
+`src`, so you would import a function including something like this
+`from src.data.ingest import ingest_cool_data`. I however, prefer something
+like `from mycoolproject.data import whatever`).
+
+Ok, that was too much text. Just run this in your prompt.
+
+```python
+cookiecutter https://github.com/drivendata/cookiecutter-data-science
+```
+
+And I prefer to rename the folder `src` for something like `cool_project`. Also,
+as you include new dependencies in your project, just export your environment
+and save it (`environment.yml`) on the top directory. Also change the `setup.py`.
+And install it locally with `pip install -e .`
+
