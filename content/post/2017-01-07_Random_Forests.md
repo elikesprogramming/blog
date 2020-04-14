@@ -165,8 +165,8 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 16.879765 seconds.
-Elapsed time is 1.198798 seconds.
+Elapsed time is 9.668507 seconds.
+Elapsed time is 0.626744 seconds.
 ```
 
 
@@ -298,8 +298,8 @@ fig, ax = plot_confusion_matrix(
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
 
 
 
@@ -459,7 +459,7 @@ plt.ylabel("True Positive Rate / hit rate / recall / sensitivity")
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -475,10 +475,10 @@ plot_roc(y_test, y_prob, ax=ax) # you can customize it. get rid of microaverages
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75b893e48>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37e3fefc8>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
 
 
 ## Precision Recall curve
@@ -506,7 +506,7 @@ plt.ylabel("Precision")
 plt.show()
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -521,10 +521,10 @@ plot_precision_recall(y_test, y_prob, ax=ax)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75c363848>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37d11a988>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
 
 
 
@@ -546,10 +546,10 @@ plot_ks_statistic(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75c855ac8>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37d1c5788>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
 
 
 Interesting. The particular KS value is not that high, again, showing that the
@@ -585,7 +585,7 @@ fig, ax = plot_confusion_matrix(
 )
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
 
 
 Cool, changing the threshold helps increasing considerably the recall, of
@@ -605,10 +605,10 @@ plot_calibration_curve(y_test, [y_prob])
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75c7e09c8>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37e560a48>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
 
 
 ## Cumulative gain plot
@@ -623,10 +623,10 @@ plot_cumulative_gain(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75c4e4e08>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37e3028c8>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
 
 
 ## Lift curve
@@ -640,10 +640,10 @@ plot_lift_curve(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x1d75c8de208>
+<matplotlib.axes._subplots.AxesSubplot at 0x2b37d303d08>
 ```
 
-![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
+![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
 
 
 ## Wrapping-up model evaluation
@@ -675,23 +675,112 @@ So those are issues to deal with in other posts.
 # Session Info
 
 ```python
-from sinfo import sinfos
+from sinfo import sinfo
 from IPython.display import display_markdown
-sinfo_html = sinfo(html=True)
+sinfo_html = sinfo(html=True, write_req_file=False)
 display_markdown(sinfo_html.data, raw=True)
 ```
 
-```
----------------------------------------------------------------------------ImportError
-Traceback (most recent call last)<ipython-input-1-8236f42e1aa2> in
-<module>
-----> 1 from sinfo import sinfos
-      2 from IPython.display import display_markdown
-      3 sinfo_html = sinfo(html=True)
-      4 display_markdown(sinfo_html.data, raw=True)
-ImportError: cannot import name 'sinfos' from 'sinfo'
-(C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
-packages\sinfo\__init__.py)
-```
 
-
+<details>
+<summary>Click to view module versions</summary>
+<pre>
+-----
+eli5        0.10.1
+joypy       0.2.2
+matplotlib  3.2.1
+mlxtend     0.17.2
+numpy       1.18.1
+pandas      1.0.3
+pytictoc    1.4.0
+scikitplot  0.3.7
+seaborn     0.10.0
+sinfo       0.3.1
+sklearn     0.22.2.post1
+-----
+</pre>
+<details>
+<summary>Click to view dependency modules</summary>
+<pre>
+attr                19.3.0
+backcall            0.1.0
+colorama            0.4.3
+concurrent          NA
+cycler              0.10.0
+cython_runtime      NA
+dateutil            2.8.1
+decorator           4.4.2
+defusedxml          0.6.0
+eli5                0.10.1
+encodings           NA
+entrypoints         0.3
+genericpath         NA
+graphviz            0.13.2
+importlib_metadata  1.6.0
+ipykernel           5.2.0
+ipython_genutils    0.2.0
+ipywidgets          7.5.1
+jedi                0.15.2
+jinja2              2.11.1
+joblib              0.14.1
+joypy               0.2.2
+jsonschema          3.2.0
+kiwisolver          1.2.0
+markupsafe          1.1.1
+matplotlib          3.2.1
+mistune             0.8.4
+mlxtend             0.17.2
+mpl_toolkits        NA
+nbconvert           5.6.1
+nbformat            5.0.4
+nt                  NA
+ntpath              NA
+nturl2path          NA
+numpy               1.18.1
+opcode              NA
+pandas              1.0.3
+pandocfilters       NA
+parso               0.6.2
+pickleshare         0.7.5
+posixpath           NA
+prompt_toolkit      3.0.5
+pvectorc            NA
+pweave              0.30.3
+pydoc_data          NA
+pyexpat             NA
+pygments            2.6.1
+pyparsing           2.4.7
+pyrsistent          NA
+pytz                2019.3
+scikitplot          0.3.7
+scipy               1.3.1
+seaborn             0.10.0
+sinfo               0.3.1
+six                 1.14.0
+sklearn             0.22.2.post1
+sre_compile         NA
+sre_constants       NA
+sre_parse           NA
+statsmodels         0.11.1
+testpath            0.4.4
+tornado             6.0.4
+traitlets           4.3.3
+wcwidth             NA
+zipp                NA
+zmq                 19.0.0
+</pre>
+</details> <!-- seems like this ends pre, so might as well be explicit -->
+<pre>
+-----
+IPython             7.13.0
+jupyter_client      6.1.2
+jupyter_core        4.6.3
+notebook            6.0.3
+-----
+Python 3.7.6 | packaged by conda-forge | (default, Mar 23 2020, 22:22:21) [MSC v.1916 64 bit (AMD64)]
+Windows-10-10.0.18362-SP0
+4 logical CPU cores, Intel64 Family 6 Model 142 Stepping 9, GenuineIntel
+-----
+Session information updated at 2020-04-14 16:36
+</pre>
+</details>
