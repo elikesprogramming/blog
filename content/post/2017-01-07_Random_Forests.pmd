@@ -73,7 +73,7 @@ interesting to see which variables are most relevant. Indeed Random Forests is
 a technique frequently used for feature selection, because the algorithm
 naturally ranks the predictors.
 
-```python, echo=False, hidden=True
+```python, echo=False, results='hidden'
 import pandas as pd
 import numpy as np
 
@@ -98,7 +98,7 @@ from pytictoc import TicToc
 ```
 
 
-```python, results="raw"
+```python
 import pandas as pd
 deaths_2016 = pd.read_csv(
     "../../Python/deaths_eevv/data_src/Nofetal_2016.txt",
@@ -114,10 +114,6 @@ deaths_2016 = deaths_2016[[
 deaths_2016 = deaths_2016.dropna()
 
 deaths_2016.head(10)
-# from epytools.data_explorer import explore_data
-# print("<iframe>")
-# print(explore_data(deaths_2016))
-# print("</iframe>")
 ```
 
 # Naive model
@@ -522,8 +518,9 @@ So those are issues to deal with in other posts.
 
 
 # Session Info
-```python, results='verbatim'
-from sinfo import sinfo
+```python
+from sinfo import sinfos
+from IPython.display import display_markdown
 sinfo_html = sinfo(html=True)
 display_markdown(sinfo_html.data, raw=True)
 ```

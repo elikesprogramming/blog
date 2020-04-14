@@ -74,24 +74,6 @@ a technique frequently used for feature selection, because the algorithm
 naturally ranks the predictors.
 
 
-```
-C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
-packages\sklearn\utils\deprecation.py:144: FutureWarning: The
-sklearn.metrics.scorer module is  deprecated in version 0.22 and will
-be removed in version 0.24. The corresponding classes / functions
-should instead be imported from sklearn.metrics. Anything that cannot
-be imported from sklearn.metrics is now part of the private API.
-  warnings.warn(message, FutureWarning)
-C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
-packages\sklearn\utils\deprecation.py:144: FutureWarning: The
-sklearn.feature_selection.base module is  deprecated in version 0.22
-and will be removed in version 0.24. The corresponding classes /
-functions should instead be imported from sklearn.feature_selection.
-Anything that cannot be imported from sklearn.feature_selection is now
-part of the private API.
-  warnings.warn(message, FutureWarning)
-```
-
 
 
 
@@ -112,37 +94,35 @@ deaths_2016 = deaths_2016[[
 deaths_2016 = deaths_2016.dropna()
 
 deaths_2016.head(10)
-# from epytools.data_explorer import explore_data
-# print("<iframe>")
-# print(explore_data(deaths_2016))
-# print("</iframe>")
 ```
 
+```
+   PMAN_MUER  MES  HORA  MINUTOS  SEXO  EST_CIVIL  GRU_ED2  NIVEL_EDU
+\
+0          2    2     0      0.0     1          3        5          4
+1          2    2    12      5.0     1          5        4         99
+2          1    3     3     40.0     2          5        1         13
+3          1    3     4     30.0     2          5        1         13
+4          2    2     1      0.0     2          3        5          2
+5          1    3    19      0.0     1          5        1         13
+6          2    2    20     40.0     1          5        5         13
+7          1    2    13     50.0     1          5        1         13
+8          1    2     6     43.0     1          5        1         13
+9          2    2     1      0.0     1          1        4          2
 
+   IDPERTET  SEG_SOCIAL   MUNI  A_DEFUN
+0         6           1  25386        1
+1         6           2   5091        3
+2         6           2  76001        1
+3         6           2  20001        1
+4         6           2  41132        1
+5         6           2  54001        1
+6         6           2   5154        3
+7         6           2  41001        1
+8         6           1  11001        1
+9         6           2  41013        3
+```
 
-   PMAN_MUER  MES  HORA  MINUTOS  SEXO  EST_CIVIL  GRU_ED2  NIVEL_EDU  \
-0          2    2     0      0.0     1          3        5          4   
-1          2    2    12      5.0     1          5        4         99   
-2          1    3     3     40.0     2          5        1         13   
-3          1    3     4     30.0     2          5        1         13   
-4          2    2     1      0.0     2          3        5          2   
-5          1    3    19      0.0     1          5        1         13   
-6          2    2    20     40.0     1          5        5         13   
-7          1    2    13     50.0     1          5        1         13   
-8          1    2     6     43.0     1          5        1         13   
-9          2    2     1      0.0     1          1        4          2   
-
-   IDPERTET  SEG_SOCIAL   MUNI  A_DEFUN  
-0         6           1  25386        1  
-1         6           2   5091        3  
-2         6           2  76001        1  
-3         6           2  20001        1  
-4         6           2  41132        1  
-5         6           2  54001        1  
-6         6           2   5154        3  
-7         6           2  41001        1  
-8         6           1  11001        1  
-9         6           2  41013        3  
 
 
 # Naive model
@@ -185,8 +165,8 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 9.913109 seconds.
-Elapsed time is 0.682463 seconds.
+Elapsed time is 16.879765 seconds.
+Elapsed time is 1.198798 seconds.
 ```
 
 
@@ -318,8 +298,8 @@ fig, ax = plot_confusion_matrix(
 plt.show()
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_1.png){width=350px}\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure10_2.png){width=350px}\
 
 
 
@@ -479,7 +459,7 @@ plt.ylabel("True Positive Rate / hit rate / recall / sensitivity")
 plt.show()
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure18_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -495,10 +475,10 @@ plot_roc(y_test, y_prob, ax=ax) # you can customize it. get rid of microaverages
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2297773a108>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75b893e48>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure19_1.png)\
 
 
 ## Precision Recall curve
@@ -526,7 +506,7 @@ plt.ylabel("Precision")
 plt.show()
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure20_1.png)\
 
 
 **UPDATE:** I was not aware of `scikitplot` that provides convenient plotting
@@ -541,10 +521,10 @@ plot_precision_recall(y_test, y_prob, ax=ax)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x22977319788>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75c363848>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure21_1.png)\
 
 
 
@@ -566,10 +546,10 @@ plot_ks_statistic(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2297765e948>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75c855ac8>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure23_1.png)\
 
 
 Interesting. The particular KS value is not that high, again, showing that the
@@ -605,7 +585,7 @@ fig, ax = plot_confusion_matrix(
 )
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure24_1.png)\
 
 
 Cool, changing the threshold helps increasing considerably the recall, of
@@ -625,10 +605,10 @@ plot_calibration_curve(y_test, [y_prob])
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2297778fa48>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75c7e09c8>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure25_1.png)\
 
 
 ## Cumulative gain plot
@@ -643,10 +623,10 @@ plot_cumulative_gain(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x229776917c8>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75c4e4e08>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure26_1.png)\
 
 
 ## Lift curve
@@ -660,10 +640,10 @@ plot_lift_curve(y_test, y_prob)
 ```
 
 ```
-<matplotlib.axes._subplots.AxesSubplot at 0x2297738c6c8>
+<matplotlib.axes._subplots.AxesSubplot at 0x1d75c8de208>
 ```
 
-![](/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
+![](../../static/post/2017-01-07_Random_Forests/2017-01-07_Random_Forests_figure27_1.png)\
 
 
 ## Wrapping-up model evaluation
@@ -695,19 +675,23 @@ So those are issues to deal with in other posts.
 # Session Info
 
 ```python
-from sinfo import sinfo
+from sinfo import sinfos
+from IPython.display import display_markdown
 sinfo_html = sinfo(html=True)
 display_markdown(sinfo_html.data, raw=True)
 ```
 
 ```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-4a49f0301618> in
+---------------------------------------------------------------------------ImportError
+Traceback (most recent call last)<ipython-input-1-8236f42e1aa2> in
 <module>
-      1 from sinfo import sinfo
-      2 sinfo_html = sinfo(html=True)
-----> 3 display_markdown(sinfo_html.data, raw=True)
-NameError: name 'display_markdown' is not defined
+----> 1 from sinfo import sinfos
+      2 from IPython.display import display_markdown
+      3 sinfo_html = sinfo(html=True)
+      4 display_markdown(sinfo_html.data, raw=True)
+ImportError: cannot import name 'sinfos' from 'sinfo'
+(C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
+packages\sinfo\__init__.py)
 ```
 
 
