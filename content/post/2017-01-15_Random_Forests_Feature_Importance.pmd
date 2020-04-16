@@ -236,7 +236,7 @@ perm4_html = eli5.show_weights(perm4, feature_names = X_train.columns.tolist())
 perm5_html = eli5.show_weights(perm5, feature_names = X_train.columns.tolist())
 ```
 
-```python
+```python, results='html'
 display_markdown(perm1_html.data, raw=True)
 display_markdown(perm2_html.data, raw=True)
 display_markdown(perm3_html.data, raw=True)

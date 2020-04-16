@@ -49,9 +49,9 @@ with TicToc(): # TicToc just to time it
 ```
 
 
-Elapsed time is 9.184644 seconds.
-Elapsed time is 0.629486 seconds.
-Elapsed time is 0.662780 seconds.
+Elapsed time is 9.248921 seconds.
+Elapsed time is 0.650617 seconds.
+Elapsed time is 0.649213 seconds.
 
 
 # Feature importance
@@ -280,11 +280,11 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 37.723501 seconds.
-Elapsed time is 40.922779 seconds.
-Elapsed time is 37.949079 seconds.
-Elapsed time is 37.144632 seconds.
-Elapsed time is 38.547389 seconds.
+Elapsed time is 37.091956 seconds.
+Elapsed time is 40.287634 seconds.
+Elapsed time is 38.100058 seconds.
+Elapsed time is 38.301862 seconds.
+Elapsed time is 38.528001 seconds.
 ```
 
 
@@ -309,6 +309,7 @@ display_markdown(perm3_html.data, raw=True)
 display_markdown(perm4_html.data, raw=True)
 display_markdown(perm5_html.data, raw=True)
 ```
+
 
 
 
