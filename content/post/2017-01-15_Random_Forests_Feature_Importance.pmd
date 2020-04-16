@@ -14,7 +14,7 @@ assess feature importance.
 
 But first let me fit again the naive model to work with.
 
-```python, echo=False, hidden=True
+```python, echo=False, results='hidden'
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -36,12 +36,7 @@ from scikitplot.metrics import plot_precision_recall
 
 from pytictoc import TicToc
 
-import sys
-modules = list(set(sys.modules) & set(globals()))
-for module_name in modules:
-    module = sys.modules[module_name]
-    print(getattr(module, '__version__', 'unknown'))
-
+from IPython.display import display_markdown
 ```
 
 ```python, results="raw"
@@ -216,7 +211,7 @@ with TicToc(): # TicToc just to time it
     ).fit(X_test, y_test)
 with TicToc(): # TicToc just to time it
     perm2 = PermutationImportance(
-        estimator=rforestclf, scoring="balanced_accuracy", n_iter=50, random_state=0
+        estimator=rforestclf, scoring="balanced_accuracy", n_iter=5, random_state=0
     ).fit(X_test, y_test)
 with TicToc(): # TicToc just to time it
     perm3 = PermutationImportance(
@@ -234,221 +229,17 @@ with TicToc(): # TicToc just to time it
 
 `eli5` provides a visualization method, to display a colored table.
 ```python, term=True
-eli5.show_weights(perm1, feature_names = X_train.columns.tolist())
-eli5.show_weights(perm2, feature_names = X_train.columns.tolist())
-eli5.show_weights(perm3, feature_names = X_train.columns.tolist())
-eli5.show_weights(perm4, feature_names = X_train.columns.tolist())
-eli5.show_weights(perm5, feature_names = X_train.columns.tolist())
-```
-That's cool. You can quickly spot the most important variables and have a sense
-of which are less important. Yet, IMHO you can convey the variability more
-effectively through a plot. `eli5` gives you the std. So let's use it.
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Rearrange so the features are sorted by importance in the plot
-indices = np.argsort(perm2.feature_importances_)[::1]
-names = [X_train.columns[i] for i in indices]
-
-# Plot them
-%matplotlib inline
-plt.figure()
-plt.errorbar(
-    x=perm2.feature_importances_[indices],
-    y=names,
-    xerr=perm2.feature_importances_std_[indices]*2,
-    fmt='o'
-)
-plt.show()
-```
-
-Ok, but what about all the distribution? `eli5` also gives you `results_`,
-"A list of score decreases for all experiments". Let's replicate here the
-joy- and violin-plots I did earlier.
-
-```python
-# Rearrange so the features are sorted by importance in the plot
-indices = np.argsort(perm2.feature_importances_)[::-1]
-names = [X_train.columns[i] for i in indices]
-
-import joypy
-importance_variability = perm2.results_
-importance_variability = pd.DataFrame(np.stack(importance_variability))
-importance_variability = importance_variability[indices]
-importance_variability.columns = names
-%matplotlib inline
-fig, axes = joypy.joyplot(importance_variability)
+perm1_html = eli5.show_weights(perm1, feature_names = X_train.columns.tolist())
+perm2_html = eli5.show_weights(perm2, feature_names = X_train.columns.tolist())
+perm3_html = eli5.show_weights(perm3, feature_names = X_train.columns.tolist())
+perm4_html = eli5.show_weights(perm4, feature_names = X_train.columns.tolist())
+perm5_html = eli5.show_weights(perm5, feature_names = X_train.columns.tolist())
 ```
 
 ```python
-import seaborn as sns
-importance_variability = importance_variability.melt(var_name='feature',
-                                                     value_name='importance')
-ax = sns.violinplot(x="importance", y="feature", data=importance_variability,
-                    scale="width")
-```
-
-Good. Rather concentrated distributions around the mean/median. This is actually
-expected because `eli5` avoids [re-training the estimator since that can be
-computationally intensive](https://eli5.readthedocs.io/en/latest/blackbox/permutation_importance.html).
-
-So far so good. Just one thing. In this specific example, it would be
-interesting to use a custom scoring metric. Since I am interested in examining
-which features are important to predict violent deaths, it would be appropriate
-to compute permutation importance using the class-specific recall rate.
-
-`eli5` allows you to pass a "callable object / function with signature
-scorer(estimator, X, y)" for the scoring parameter, so it should be rather easy.
-However, I just tried and didn't work immediately and I am not in a mood to
-troubleshoot that right now.
-
-But I know `mlxtend` provides other alternative to compute [permutation
-importance](http://rasbt.github.io/mlxtend/user_guide/evaluate/feature_importance_permutation/#feature-importance-permutation).
-And they also receive a callable object as
-the scoring metric "scoring function (e.g., metric=scoring_func) that accepts
-two arguments, y_true and y_pred". So let's try that.
-
-First calculate and plot the default permutation importance.
-```python
-from mlxtend.evaluate import feature_importance_permutation
-
-with TicToc():
-    mlx_perm_imp, _ = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric='accuracy',
-        num_rounds=50,
-        seed=0
-    )
-
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
-
-import matplotlib.pyplot as plt
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
-Cool, so it is consistent with `eli5`'s default using accuracy'.
-
-Now let's define a simple scorer function, that computes the recall rate
-for the violent death class.
-```python
-def violent_scorer(y_true, y_pred):
-    return metrics.recall_score(y_true, y_pred, pos_label=2)
-# Just to make sure it return the correct value for the y_test and y_pred
-violent_scorer(y_test, y_pred)
-```
-
-And now use it to calculate permutation importance.
-```python
-with TicToc():
-    mlx_perm_imp, mlx_perm_imp_all = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric=violent_scorer,
-        num_rounds=50,
-        seed=0
-    )
-
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
-
-import matplotlib.pyplot as plt
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
-Great, this seems to make sense. Sex, that ended up relegated in the importance
-calculated using mean decrease impurity now indeed appears quite relevant
-(but yeah, there are still too many issues to deal with -e.g. check what is
-going on here with the correlated predictors and how it affects the importance-).
-
-Indeed, once again that may be an issue here. Look at the time of the day
-the death ocurred. The hour seems unimportant, which is also unintuitive.
-Violent deaths usually ocurr during the night, right?. So maybe there is
-a high correlation in there making noise. Let's take a look.
-```python
-corr_mat = X_train.corr()
-corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
-```
-
-```python
-corr_mat = X_test.corr()
-corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
-```
-
-Well, yeah, there is indeed a relatively high correlation between the hour and
-the minutes. That's most probably why the hour seems unimportant. Remember that
-when there are correlated predictors, one of those can take over in the
-permutation important leaving the other behind. So with this I can start
-improving the naive model. Let's just combine hour and minutes in a single
-variable and re-fit the model.
-
-```python, width="350px"
-X_all = deaths_2016.drop("PMAN_MUER", "columns")
-X_all["TIME"] = X_all["HORA"]*60 + X_all["MINUTOS"]
-X_all = X_all.drop("HORA", "columns")
-X_all = X_all.drop("MINUTOS", "columns")
-y_all = deaths_2016.loc[:, "PMAN_MUER"]
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X_all, y_all, test_size=0.3, random_state=0
-)
-rforestclf = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
-with TicToc(): # TicToc just to time it
-    rforestclf.fit(X_train, y_train)
-with TicToc(): # TicToc just to time it
-    y_pred = rforestclf.predict(X_test)
-
-naive_confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
-fig, ax = plot_confusion_matrix(
-    conf_mat=naive_confusion_matrix,
-    show_absolute=True,
-    show_normed=True
-)
-plt.show()
-```
-
-And now calculate the permutation importance.
-```python
-with TicToc():
-    mlx_perm_imp, mlx_perm_imp_all = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric=violent_scorer,
-        num_rounds=50,
-        seed=0
-    )
-
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
-
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
-
-So I'll leave feature importances here and move on to how to deal with class
-imbalance, ..., in the next post.
-
-# Session Info
-```python, results='verbatim'
-from sinfo import sinfo
-sinfo_html = sinfo(html=True)
-display_markdown(sinfo_html.data, raw=True)
+display_markdown(perm1_html.data, raw=True)
+display_markdown(perm2_html.data, raw=True)
+display_markdown(perm3_html.data, raw=True)
+display_markdown(perm4_html.data, raw=True)
+display_markdown(perm5_html.data, raw=True)
 ```

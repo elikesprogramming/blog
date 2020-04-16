@@ -15,28 +15,6 @@ assess feature importance.
 But first let me fit again the naive model to work with.
 
 
-```
-3.2.1
-0.10.1
-unknown
-0.2.2
-C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
-packages\sklearn\utils\deprecation.py:144: FutureWarning: The
-sklearn.metrics.scorer module is  deprecated in version 0.22 and will
-be removed in version 0.24. The corresponding classes / functions
-should instead be imported from sklearn.metrics. Anything that cannot
-be imported from sklearn.metrics is now part of the private API.
-  warnings.warn(message, FutureWarning)
-C:\Users\ed_al\Anaconda3\envs\blog_env\lib\site-
-packages\sklearn\utils\deprecation.py:144: FutureWarning: The
-sklearn.feature_selection.base module is  deprecated in version 0.22
-and will be removed in version 0.24. The corresponding classes /
-functions should instead be imported from sklearn.feature_selection.
-Anything that cannot be imported from sklearn.feature_selection is now
-part of the private API.
-  warnings.warn(message, FutureWarning)
-```
-
 
 
 
@@ -71,9 +49,9 @@ with TicToc(): # TicToc just to time it
 ```
 
 
-Elapsed time is 13.657817 seconds.
-Elapsed time is 0.908409 seconds.
-Elapsed time is 0.885320 seconds.
+Elapsed time is 9.184644 seconds.
+Elapsed time is 0.629486 seconds.
+Elapsed time is 0.662780 seconds.
 
 
 # Feature importance
@@ -124,7 +102,7 @@ plt.yticks(range(X_train.shape[1]), names)
 plt.show()
 ```
 
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure4_1.png)\
+![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure4_1.png)\
 
 
 Ok, that's better. I just keep missing taking a look at the variability in the
@@ -150,7 +128,7 @@ importance_variability.columns = names
 fig, axes = joypy.joyplot(importance_variability)
 ```
 
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure5_1.png)\
+![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure5_1.png)\
 
 Ok, now you have a sense of feature importance variability in the forest.
 But it seems a lot for the most important variables (which is expected, see
@@ -169,7 +147,7 @@ ax = sns.violinplot(x="importance", y="feature", data=importance_variability,
                     scale="width")
 ```
 
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure6_1.png)\
+![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure6_1.png)\
 
 Yeah, I think this more accurately reflects what is going on.
 
@@ -285,7 +263,7 @@ with TicToc(): # TicToc just to time it
     ).fit(X_test, y_test)
 with TicToc(): # TicToc just to time it
     perm2 = PermutationImportance(
-        estimator=rforestclf, scoring="balanced_accuracy", n_iter=50, random_state=0
+        estimator=rforestclf, scoring="balanced_accuracy", n_iter=5, random_state=0
     ).fit(X_test, y_test)
 with TicToc(): # TicToc just to time it
     perm3 = PermutationImportance(
@@ -302,11 +280,11 @@ with TicToc(): # TicToc just to time it
 ```
 
 ```
-Elapsed time is 53.536462 seconds.
-Elapsed time is 557.019857 seconds.
-Elapsed time is 53.607416 seconds.
-Elapsed time is 54.427272 seconds.
-Elapsed time is 47.126068 seconds.
+Elapsed time is 37.723501 seconds.
+Elapsed time is 40.922779 seconds.
+Elapsed time is 37.949079 seconds.
+Elapsed time is 37.144632 seconds.
+Elapsed time is 38.547389 seconds.
 ```
 
 
@@ -314,338 +292,1062 @@ Elapsed time is 47.126068 seconds.
 `eli5` provides a visualization method, to display a colored table.
 
 ```python
-eli5.show_weights(perm1, feature_names = X_train.columns.tolist())
-```
-
-```
-<IPython.core.display.HTML object>
-```
-
-
-```python
-eli5.show_weights(perm2, feature_names = X_train.columns.tolist())
-```
-
-```
-<IPython.core.display.HTML object>
-```
-
-
-```python
-eli5.show_weights(perm3, feature_names = X_train.columns.tolist())
-```
-
-```
-<IPython.core.display.HTML object>
-```
-
-
-```python
-eli5.show_weights(perm4, feature_names = X_train.columns.tolist())
-```
-
-```
-<IPython.core.display.HTML object>
-```
-
-
-```python
-eli5.show_weights(perm5, feature_names = X_train.columns.tolist())
-```
-
-```
-<IPython.core.display.HTML object>
-```
-
-
-That's cool. You can quickly spot the most important variables and have a sense
-of which are less important. Yet, IMHO you can convey the variability more
-effectively through a plot. `eli5` gives you the std. So let's use it.
-
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Rearrange so the features are sorted by importance in the plot
-indices = np.argsort(perm2.feature_importances_)[::1]
-names = [X_train.columns[i] for i in indices]
-
-# Plot them
-%matplotlib inline
-plt.figure()
-plt.errorbar(
-    x=perm2.feature_importances_[indices],
-    y=names,
-    xerr=perm2.feature_importances_std_[indices]*2,
-    fmt='o'
-)
-plt.show()
-```
-
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure11_1.png)\
-
-
-Ok, but what about all the distribution? `eli5` also gives you `results_`,
-"A list of score decreases for all experiments". Let's replicate here the
-joy- and violin-plots I did earlier.
-
-
-```python
-# Rearrange so the features are sorted by importance in the plot
-indices = np.argsort(perm2.feature_importances_)[::-1]
-names = [X_train.columns[i] for i in indices]
-
-import joypy
-importance_variability = perm2.results_
-importance_variability = pd.DataFrame(np.stack(importance_variability))
-importance_variability = importance_variability[indices]
-importance_variability.columns = names
-%matplotlib inline
-fig, axes = joypy.joyplot(importance_variability)
-```
-
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure12_1.png)\
-
-
-
-```python
-import seaborn as sns
-importance_variability = importance_variability.melt(var_name='feature',
-                                                     value_name='importance')
-ax = sns.violinplot(x="importance", y="feature", data=importance_variability,
-                    scale="width")
-```
-
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure13_1.png)\
-
-
-Good. Rather concentrated distributions around the mean/median. This is actually
-expected because `eli5` avoids [re-training the estimator since that can be
-computationally intensive](https://eli5.readthedocs.io/en/latest/blackbox/permutation_importance.html).
-
-So far so good. Just one thing. In this specific example, it would be
-interesting to use a custom scoring metric. Since I am interested in examining
-which features are important to predict violent deaths, it would be appropriate
-to compute permutation importance using the class-specific recall rate.
-
-`eli5` allows you to pass a "callable object / function with signature
-scorer(estimator, X, y)" for the scoring parameter, so it should be rather easy.
-However, I just tried and didn't work immediately and I am not in a mood to
-troubleshoot that right now.
-
-But I know `mlxtend` provides other alternative to compute [permutation
-importance](http://rasbt.github.io/mlxtend/user_guide/evaluate/feature_importance_permutation/#feature-importance-permutation).
-And they also receive a callable object as
-the scoring metric "scoring function (e.g., metric=scoring_func) that accepts
-two arguments, y_true and y_pred". So let's try that.
-
-First calculate and plot the default permutation importance.
-
-```python
-from mlxtend.evaluate import feature_importance_permutation
-
-with TicToc():
-    mlx_perm_imp, _ = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric='accuracy',
-        num_rounds=50,
-        seed=0
-    )
-
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
-
-import matplotlib.pyplot as plt
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
-
-```
-Elapsed time is 527.113085 seconds.
-```
-
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure14_1.png)\
-
-Cool, so it is consistent with `eli5`'s default using accuracy'.
-
-Now let's define a simple scorer function, that computes the recall rate
-for the violent death class.
-
-```python
-def violent_scorer(y_true, y_pred):
-    return metrics.recall_score(y_true, y_pred, pos_label=2)
-# Just to make sure it return the correct value for the y_test and y_pred
-violent_scorer(y_test, y_pred)
-```
-
-```
-0.6741346609767662
-```
-
-
-
-And now use it to calculate permutation importance.
-
-```python
-with TicToc():
-    mlx_perm_imp, mlx_perm_imp_all = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric=violent_scorer,
-        num_rounds=50,
-        seed=0
-    )
-
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
-
-import matplotlib.pyplot as plt
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
-
-```
-Elapsed time is 463.429892 seconds.
-```
-
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure16_1.png)\
-
-Great, this seems to make sense. Sex, that ended up relegated in the importance
-calculated using mean decrease impurity now indeed appears quite relevant
-(but yeah, there are still too many issues to deal with -e.g. check what is
-going on here with the correlated predictors and how it affects the importance-).
-
-Indeed, once again that may be an issue here. Look at the time of the day
-the death ocurred. The hour seems unimportant, which is also unintuitive.
-Violent deaths usually ocurr during the night, right?. So maybe there is
-a high correlation in there making noise. Let's take a look.
-
-```python
-corr_mat = X_train.corr()
-corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
-```
-
-```
-<pandas.io.formats.style.Styler at 0x1326234d408>
+perm1_html = eli5.show_weights(perm1, feature_names = X_train.columns.tolist())
+perm2_html = eli5.show_weights(perm2, feature_names = X_train.columns.tolist())
+perm3_html = eli5.show_weights(perm3, feature_names = X_train.columns.tolist())
+perm4_html = eli5.show_weights(perm4, feature_names = X_train.columns.tolist())
+perm5_html = eli5.show_weights(perm5, feature_names = X_train.columns.tolist())
 ```
 
 
 
 
 ```python
-corr_mat = X_test.corr()
-corr_mat.abs().style.background_gradient(cmap='RdBu_r').set_precision(2)
+display_markdown(perm1_html.data, raw=True)
+display_markdown(perm2_html.data, raw=True)
+display_markdown(perm3_html.data, raw=True)
+display_markdown(perm4_html.data, raw=True)
+display_markdown(perm5_html.data, raw=True)
 ```
 
-```
-<pandas.io.formats.style.Styler at 0x1326215bf48>
-```
+
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
 
 
 
-Well, yeah, there is indeed a relatively high correlation between the hour and
-the minutes. That's most probably why the hour seems unimportant. Remember that
-when there are correlated predictors, one of those can take over in the
-permutation important leaving the other behind. So with this I can start
-improving the naive model. Let's just combine hour and minutes in a single
-variable and re-fit the model.
+    
+
+    
+
+    
+
+    
+
+    
+
+    
 
 
-```python
-X_all = deaths_2016.drop("PMAN_MUER", "columns")
-X_all["TIME"] = X_all["HORA"]*60 + X_all["MINUTOS"]
-X_all = X_all.drop("HORA", "columns")
-X_all = X_all.drop("MINUTOS", "columns")
-y_all = deaths_2016.loc[:, "PMAN_MUER"]
+    
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_all, y_all, test_size=0.3, random_state=0
-)
-rforestclf = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
-with TicToc(): # TicToc just to time it
-    rforestclf.fit(X_train, y_train)
-with TicToc(): # TicToc just to time it
-    y_pred = rforestclf.predict(X_test)
+    
 
-naive_confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
-fig, ax = plot_confusion_matrix(
-    conf_mat=naive_confusion_matrix,
-    show_absolute=True,
-    show_normed=True
-)
-plt.show()
-```
+    
 
-```
-Elapsed time is 10.819374 seconds.
-Elapsed time is 0.744690 seconds.
-```
+    
 
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure19_1.png){width=350px}\
+    
+
+    
 
 
-And now calculate the permutation importance.
+    
 
-```python
-with TicToc():
-    mlx_perm_imp, mlx_perm_imp_all = feature_importance_permutation(
-        predict_method=rforestclf.predict,
-        X=X_test.values,
-        y=y_test.values,
-        metric=violent_scorer,
-        num_rounds=50,
-        seed=0
-    )
+    
 
-indices = np.argsort(mlx_perm_imp)[::1]
-names = [X_train.columns[i] for i in indices]
+    
 
-plt.figure()
-plt.barh(
-    y=names,
-    width=mlx_perm_imp[indices]
-)
-plt.show()
-```
+    
 
-```
-Elapsed time is 416.975056 seconds.
-```
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0354
+                
+                    &plusmn; 0.0012
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                GRU_ED2
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.27%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0347
+                
+                    &plusmn; 0.0011
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MINUTOS
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 89.50%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0141
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEG_SOCIAL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 90.46%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0123
+                
+                    &plusmn; 0.0005
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                HORA
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 92.47%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0088
+                
+                    &plusmn; 0.0006
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEXO
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.53%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0071
+                
+                    &plusmn; 0.0003
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                A_DEFUN
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.85%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0066
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MUNI
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.29%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0059
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NIVEL_EDU
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.21%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0046
+                
+                    &plusmn; 0.0002
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                IDPERTET
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.57%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0017
+                
+                    &plusmn; 0.0004
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                EST_CIVIL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.21%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0003
+                
+                    &plusmn; 0.0009
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MES
+            </td>
+        </tr>
+    
+    
+    </tbody>
+</table>
+    
 
-![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure20_1.png)\
+    
 
 
-So I'll leave feature importances here and move on to how to deal with class
-imbalance, ..., in the next post.
+    
 
-# Session Info
+    
 
-```python
-from sinfo import sinfo
-sinfo_html = sinfo(html=True)
-display_markdown(sinfo_html.data, raw=True)
-```
+    
 
-```
----------------------------------------------------------------------------NameError
-Traceback (most recent call last)<ipython-input-1-4a49f0301618> in
-<module>
-      1 from sinfo import sinfo
-      2 sinfo_html = sinfo(html=True)
-----> 3 display_markdown(sinfo_html.data, raw=True)
-NameError: name 'display_markdown' is not defined
-```
+    
+
+    
+
+    
+
+
+
+
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.1201
+                
+                    &plusmn; 0.0024
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                GRU_ED2
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 91.61%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0347
+                
+                    &plusmn; 0.0024
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEXO
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 92.34%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0305
+                
+                    &plusmn; 0.0020
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MINUTOS
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 92.66%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0287
+                
+                    &plusmn; 0.0011
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEG_SOCIAL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.33%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0250
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MUNI
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.68%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0232
+                
+                    &plusmn; 0.0015
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NIVEL_EDU
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.80%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0175
+                
+                    &plusmn; 0.0009
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                A_DEFUN
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.48%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0143
+                
+                    &plusmn; 0.0020
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                HORA
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.15%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0114
+                
+                    &plusmn; 0.0013
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                EST_CIVIL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.29%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0069
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                IDPERTET
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.06%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0015
+                
+                    &plusmn; 0.0017
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MES
+            </td>
+        </tr>
+    
+    
+    </tbody>
+</table>
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0591
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                GRU_ED2
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 82.53%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0488
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MINUTOS
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 89.95%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0221
+                
+                    &plusmn; 0.0014
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEG_SOCIAL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 91.18%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0184
+                
+                    &plusmn; 0.0008
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                HORA
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 92.15%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0155
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEXO
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.62%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0116
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MUNI
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.63%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0115
+                
+                    &plusmn; 0.0005
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                A_DEFUN
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.05%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0105
+                
+                    &plusmn; 0.0011
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NIVEL_EDU
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.46%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0071
+                
+                    &plusmn; 0.0004
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                IDPERTET
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.23%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0035
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                EST_CIVIL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.16%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0006
+                
+                    &plusmn; 0.0014
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MES
+            </td>
+        </tr>
+    
+    
+    </tbody>
+</table>
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.1052
+                
+                    &plusmn; 0.0039
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                GRU_ED2
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.63%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0161
+                
+                    &plusmn; 0.0008
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEG_SOCIAL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.79%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0154
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MINUTOS
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.11%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0140
+                
+                    &plusmn; 0.0024
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEXO
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.35%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0131
+                
+                    &plusmn; 0.0012
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                HORA
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.41%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0129
+                
+                    &plusmn; 0.0005
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MUNI
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.48%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0126
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NIVEL_EDU
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.56%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0085
+                
+                    &plusmn; 0.0011
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                A_DEFUN
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.37%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0029
+                
+                    &plusmn; 0.0003
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                IDPERTET
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.52%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0025
+                
+                    &plusmn; 0.0009
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                EST_CIVIL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 99.44%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0006
+                
+                    &plusmn; 0.0014
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MES
+            </td>
+        </tr>
+    
+    
+    </tbody>
+</table>
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0361
+                
+                    &plusmn; 0.0008
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MINUTOS
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 90.97%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0116
+                
+                    &plusmn; 0.0005
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                HORA
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 92.37%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0091
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEG_SOCIAL
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 93.94%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0066
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                GRU_ED2
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.86%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0038
+                
+                    &plusmn; 0.0003
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                IDPERTET
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.09%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0035
+                
+                    &plusmn; 0.0002
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                A_DEFUN
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.32%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0003
+                
+                    &plusmn; 0.0004
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MUNI
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.87%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0000
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NIVEL_EDU
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 99.81%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0000
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MES
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 99.74%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0001
+                
+                    &plusmn; 0.0003
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                SEXO
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 97.80%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0015
+                
+                    &plusmn; 0.0004
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                EST_CIVIL
+            </td>
+        </tr>
+    
+    
+    </tbody>
+</table>
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
 
 
