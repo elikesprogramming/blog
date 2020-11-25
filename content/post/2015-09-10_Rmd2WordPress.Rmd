@@ -10,7 +10,6 @@ tags:
 ---
 
 ```{r setup, include=FALSE}
-library(efunc)
 
 library(ggplot2)
 library(gridExtra)
