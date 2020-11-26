@@ -1,0 +1,163 @@
+---
+title: ggplot2 image quality in rmarkdown et al.
+author: ''
+date: '2017-12-05'
+slug: index.en-us
+categories: []
+tags: []
+keywords:
+  - ggplot2 rmarkdown
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p>This is just a quick reminder on how to deal with the frustration of
+far-from-perfect <code>ggplot2</code> images in <code>rmarkdown</code> and related formats (e.g. bookdown, blogdown, xaringan).</p>
+<div id="the-issue" class="section level1">
+<h1>The issue</h1>
+<p>Motivation is this.</p>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-1-1.png" width="70%" /></p>
+<p>The plot probably does not make sense at all. And I did not spend a second
+thinking about its design, color palette, etc. But this plot illustrates two
+frequent issues:</p>
+<ul>
+<li>Need to fix aspect-ratio and overall, deal with the shape and size of the plot.</li>
+<li>Image-quality is really far from perfect. Just compare it with the same plot
+as rendered in RStudio Viewer (I am not in the mood to show the comparison
+here, though).</li>
+</ul>
+</div>
+<div id="towards-a-better-plot" class="section level1">
+<h1>Towards a better plot</h1>
+<div id="useful-refs" class="section level2">
+<h2>Useful refs</h2>
+<p>Just some links to follow, when you need to bruch up on these things</p>
+<ul>
+<li><a href="https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing">The canonical / authoritative source</a></li>
+<li><a href="https://bookdown.org/yihui/rmarkdown-cookbook/graphical-device.html">Well, the rmarkdown cookbook of course</a></li>
+<li><a href="http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/">Tips and tricks about all this. Check it out</a></li>
+<li><strong>EDIT:</strong> <a href="https://rmflight.github.io/post/nicer-png-graphics/">Making the case to use <code>cairo</code></a></li>
+<li><strong>EDIT:</strong> <a href="https://benjaminlouis-stat.fr/en/blog/2020-05-21-astuces-ggplot-rmarkdown/">A recent and useful post discussing these issues</a></li>
+<li><a href="https://stackoverflow.com/questions/18884778/poor-resolution-in-knitr-using-rmd">And an old SO question that repeatedly pop up in my search</a></li>
+<li><a href="https://danieljhocking.wordpress.com/2013/03/12/high-resolution-figures-in-r/">A frequently-seen post with details on exporting plots to meet a journal standards</a></li>
+<li><a href="https://www.andrewheiss.com/blog/2017/09/27/working-with-r-cairo-graphics-custom-fonts-and-ggplot/">Good reference on how to deal with fonts, …, if and when you want to go out of the standard</a></li>
+</ul>
+</div>
+<div id="fixing-aspect-ratio" class="section level2">
+<h2>Fixing aspect ratio</h2>
+<p>I just follow the authoritative advice and set defaults for <code>fig.width</code>,
+<code>fig.asp</code> and <code>out.width</code>. Now in the specific chunk y modify the <code>fig.asp</code>.
+Usually, the trick is just to render the plot in RStudio Viewer and adjust there
+until satisfied and then right click -&gt; Inspect and see the width and height and bring it here as <code>fig.asp=891/483</code>.</p>
+<p>This can result in horrible things, like here.</p>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-2-1.png" width="70%" /></p>
+<p>So you should also probably need to adjust the fig.width to make the text size
+as you want. And as seen above, the image quality can also be compromised, so
+you probably need to fiddle with <code>fig.retina</code> and/or <code>dev</code>.</p>
+</div>
+<div id="changing-dev" class="section level2">
+<h2>Changing <code>dev</code></h2>
+<p><code>dev="CairoPNG"</code> is one alternative that can help you out, still using PNG
+files. You need to have either cairo <code>capabilities()</code> or the <code>Cairo</code> package.</p>
+<p>Alternatively, you can use <code>dev="svg"</code> for potentially even better quality. But
+it is vector-based graphics, so it could lead to very big files (e.g. scatter
+plots with millions of points).</p>
+<div id="devcairopng" class="section level3">
+<h3>dev=“CairoPNG”</h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-3-1.png" width="70%" /></p>
+</div>
+<div id="devsvg" class="section level3">
+<h3>dev=“svg”</h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-4-1.svg" width="70%" /></p>
+</div>
+</div>
+<div id="fig.retina" class="section level2">
+<h2>fig.retina</h2>
+<div id="fig.retina1" class="section level3">
+<h3><code>fig.retina=1</code></h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-5-1.png" width="70%" /></p>
+</div>
+<div id="fig.retina2" class="section level3">
+<h3><code>fig.retina=2</code></h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-6-1.png" width="70%" /></p>
+</div>
+<div id="fig.retina3" class="section level3">
+<h3><code>fig.retina=3</code></h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-7-1.png" width="70%" /></p>
+</div>
+<div id="fig.retina4" class="section level3">
+<h3><code>fig.retina=4</code></h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-8-1.png" width="70%" /></p>
+</div>
+<div id="fig.retina5" class="section level3">
+<h3><code>fig.retina=5</code></h3>
+<pre class="r"><code>diamonds %&gt;%
+  ggplot(aes(x = carat, fill = cut)) + 
+  geom_density(color = NA) +
+  facet_wrap(vars(cut), ncol = 1) +
+  scale_x_log10() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = &quot;none&quot;) </code></pre>
+<p><img src="/post/2017-12-05-ggplot2-image-quality-in-rmarkdown-et-al/index.en-us_files/figure-html/unnamed-chunk-9-1.png" width="70%" /></p>
+</div>
+</div>
+</div>
