@@ -1,0 +1,54 @@
+---
+title: Counting unique values
+author: elikesprogramming
+date: '2018-03-08'
+slug: index.en-us
+categories:
+  - R
+tags:
+  - tag1
+  - tag2
+keywords:
+  - tech
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(vctrs)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;vctrs&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     data_frame</code></pre>
+<pre class="r"><code>library(purrr)</code></pre>
+<pre class="r"><code>summarise(mtcars, across(.f = n_distinct))</code></pre>
+<pre><code>##   mpg cyl disp hp drat wt qsec vs am gear carb
+## 1  25   3   27 22   22 29   30  2  2    3    6</code></pre>
+<pre class="r"><code>purrr::map_int(mtcars, .f = vctrs::vec_unique_count)</code></pre>
+<pre><code>##  mpg  cyl disp   hp drat   wt qsec   vs   am gear carb 
+##   25    3   27   22   22   29   30    2    2    3    6</code></pre>
+<pre class="r"><code>mbm &lt;- microbenchmark::microbenchmark(
+  summarise(mtcars, across(.f = n_distinct)),
+  map_int(mtcars, .f = vec_unique_count)
+)</code></pre>
+<pre class="r"><code>mbm</code></pre>
+<pre><code>## Unit: microseconds
+##                                        expr      min       lq      mean
+##  summarise(mtcars, across(.f = n_distinct)) 3532.900 4166.650 4902.3210
+##      map_int(mtcars, .f = vec_unique_count)   83.101  102.101  145.0709
+##    median       uq      max neval
+##  4457.601 5212.151 7810.301   100
+##   125.851  194.751  302.501   100</code></pre>
+<pre class="r"><code>ggplot2::autoplot(mbm)</code></pre>
+<pre><code>## Coordinate system already present. Adding new coordinate system, which will replace the existing one.</code></pre>
+<p><img src="/post/2018-03-08-counting-unique-values/index.en-us_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
