@@ -1,0 +1,185 @@
+---
+title: Package workflow notes
+author: ''
+date: '2018-09-12'
+slug: index.en-us
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<!--more-->
+
+install.packages("devtools")
+usethis::create_package("/cloud/project")
+usethis::use_testthat()
+usethis::use_mit_license(name = "elikesprogramming")
+usethis::use_git_config(
+  scope = "project",
+  user.name = "elikesprogramming",
+  user.email = "elikesprogramming@gmail.com"
+)
+usethis::use_git()
+
+
+r package for data analysis?
+- https://bookdown.org/rdpeng/RProgDA/data-within-a-package.html
+- https://towardsdatascience.com/put-your-data-analysis-in-an-r-package-even-if-you-dont-publish-it-64f2bb8fd791
+- http://r-pkgs.had.co.nz/data.html
+- https://peerj.com/preprints/3180/
+- https://community.rstudio.com/t/best-practice-for-good-documented-reproducible-analysis/1995
+
+Create a new project using RStudio, preferably using devtools
+
+Then tools, Version control and initialize version control for this project
+
+then renv::init() to use renv for control of packages 
+
+usethis::use_testthat() once to setup testthat
+
+put two little pre-made scripts
+
+write reports, manuscripts, book chapters, etc., as vignettes using Rmd
+
+most data processing goes in package fns, called by the rmd file
+espcially, long-running processing tasks
+most processing fns are memoised, and those that take a while, are memoised using a file system cache
+
+bookme()
+can the vignetes be built with bookdown?
+https://github.com/rstudio/bookdown/issues/572
+
+usethis::use_licence
+
+TODO: pkgdown
+
+
+Test 
+
+goodpractice::gp()
+
+
+
+# renv
+
+renv::init()
+
+renv::snapshot()
+
+renv::hydrate()
+
+
+
+# usethis
+
+
+
+# testthat
+
+
+
+
+# here
+
+
+# pkgdown
+
+# vignettes
+
+
+use_package_doc()
+use_pipe(FALSE) #to use pipe in all the package. reexport false because tipically for data analysis packages u do not really provide an api but the results only
+
+
+# Package dev
+
+
+## setup
+
+available::available("mylittlepackage") # optional but recommended
+
+create_package("~/Desktop/utwf") # or use rstudio create package using git
+use_git()
+TODO: let's do this later use_github()
+
+use_mit_license()
+
+use_pipe()
+usethis::use_package_doc()
+use_tibble() # TODO: check out when exactly this is worth it/necessary
+
+use_readme_rmd()
+
+use_testthat()
+use_spell_check()
+use_test("pacage-name") # TODO
+
+use_vignette(package_name)
+use_pkgdown()
+
+use_news_md() # mmm, not sure about it
+
+
+
+
+# when ready to put it public
+usethis::use_github_action("pkgdown")
+usethis::use_github()
+
+add url to _pkgdown.yml
+
+make sure you enable github pages
+repo -> Settings -> github pages (towards the end of the page) -> and use the gh-pages from /root
+
+
+
+## rinse and repeat 
+
+use_test("function_name")
+use_package("wow") 
+
+use_vignette("How to do this cool analysis")
+
+load_all
+document
+
+
+## Before releasing
+goodpractice::gp() # automates some checks
+covr::report() # report coverage of tests
+usethis::use_citation() # look for the post make your r package easier to cite, from ropensci
+use_version() # TODO: check exactly when
+
+
+## gotchas
+
+if you set dev="svg" remember to also set fig.ext="svg"
+for some reason dev="svg" only, keeps naming the files png, which 
+results in non-renderable figures. See:
+https://github.com/r-lib/pkgdown/issues/693
+
+
+## No Visible Binding for Global Variable or how to deal with NSE in packages
+
+- https://nathaneastwood.github.io/2019/08/18/no-visible-binding-for-global-variable/
+  + with data.table applications
+
+https://laderast.github.io/2019/02/12/package-building-description-namespace/
+  + interesting flowchart
+  
+- https://johnmuschelli.com/smi_2019/index.html#53
+  + some interesting things
+  
+  let's use match.arg
+
+
+Either set
+globalVariables(c("mpg", "hp", "mpg_div_hp"))
+
+Or a the top of the function do
+mpg <- hp <- mpg_div_hp <- NULL
+
+Use the .data pronoun in tidyverse
+need to import it, though
+@importFrom rlang .data

@@ -1,0 +1,148 @@
+---
+title: Package workflow notes
+author: ''
+date: '2018-09-12'
+slug: index.en-us
+categories: []
+tags: []
+keywords:
+  - tech
+---
+
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<!--more-->
+<p>install.packages(“devtools”)
+usethis::create_package(“/cloud/project”)
+usethis::use_testthat()
+usethis::use_mit_license(name = “elikesprogramming”)
+usethis::use_git_config(
+scope = “project”,
+user.name = “elikesprogramming”,
+user.email = “<a href="mailto:elikesprogramming@gmail.com" class="email">elikesprogramming@gmail.com</a>”
+)
+usethis::use_git()</p>
+<p>r package for data analysis?
+- <a href="https://bookdown.org/rdpeng/RProgDA/data-within-a-package.html" class="uri">https://bookdown.org/rdpeng/RProgDA/data-within-a-package.html</a>
+- <a href="https://towardsdatascience.com/put-your-data-analysis-in-an-r-package-even-if-you-dont-publish-it-64f2bb8fd791" class="uri">https://towardsdatascience.com/put-your-data-analysis-in-an-r-package-even-if-you-dont-publish-it-64f2bb8fd791</a>
+- <a href="http://r-pkgs.had.co.nz/data.html" class="uri">http://r-pkgs.had.co.nz/data.html</a>
+- <a href="https://peerj.com/preprints/3180/" class="uri">https://peerj.com/preprints/3180/</a>
+- <a href="https://community.rstudio.com/t/best-practice-for-good-documented-reproducible-analysis/1995" class="uri">https://community.rstudio.com/t/best-practice-for-good-documented-reproducible-analysis/1995</a></p>
+<p>Create a new project using RStudio, preferably using devtools</p>
+<p>Then tools, Version control and initialize version control for this project</p>
+<p>then renv::init() to use renv for control of packages</p>
+<p>usethis::use_testthat() once to setup testthat</p>
+<p>put two little pre-made scripts</p>
+<p>write reports, manuscripts, book chapters, etc., as vignettes using Rmd</p>
+<p>most data processing goes in package fns, called by the rmd file
+espcially, long-running processing tasks
+most processing fns are memoised, and those that take a while, are memoised using a file system cache</p>
+<p>bookme()
+can the vignetes be built with bookdown?
+<a href="https://github.com/rstudio/bookdown/issues/572" class="uri">https://github.com/rstudio/bookdown/issues/572</a></p>
+<p>usethis::use_licence</p>
+<p>TODO: pkgdown</p>
+<p>Test</p>
+<p>goodpractice::gp()</p>
+<div id="renv" class="section level1">
+<h1>renv</h1>
+<p>renv::init()</p>
+<p>renv::snapshot()</p>
+<p>renv::hydrate()</p>
+</div>
+<div id="usethis" class="section level1">
+<h1>usethis</h1>
+</div>
+<div id="testthat" class="section level1">
+<h1>testthat</h1>
+</div>
+<div id="here" class="section level1">
+<h1>here</h1>
+</div>
+<div id="pkgdown" class="section level1">
+<h1>pkgdown</h1>
+</div>
+<div id="vignettes" class="section level1">
+<h1>vignettes</h1>
+<p>use_package_doc()
+use_pipe(FALSE) #to use pipe in all the package. reexport false because tipically for data analysis packages u do not really provide an api but the results only</p>
+</div>
+<div id="package-dev" class="section level1">
+<h1>Package dev</h1>
+<div id="setup" class="section level2">
+<h2>setup</h2>
+<p>available::available(“mylittlepackage”) # optional but recommended</p>
+<p>create_package(“~/Desktop/utwf”) # or use rstudio create package using git
+use_git()
+TODO: let’s do this later use_github()</p>
+<p>use_mit_license()</p>
+<p>use_pipe()
+usethis::use_package_doc()
+use_tibble() # TODO: check out when exactly this is worth it/necessary</p>
+<p>use_readme_rmd()</p>
+<p>use_testthat()
+use_spell_check()
+use_test(“pacage-name”) # TODO</p>
+<p>use_vignette(package_name)
+use_pkgdown()</p>
+<p>use_news_md() # mmm, not sure about it</p>
+</div>
+</div>
+<div id="when-ready-to-put-it-public" class="section level1">
+<h1>when ready to put it public</h1>
+<p>usethis::use_github_action(“pkgdown”)
+usethis::use_github()</p>
+<p>add url to _pkgdown.yml</p>
+<p>make sure you enable github pages
+repo -&gt; Settings -&gt; github pages (towards the end of the page) -&gt; and use the gh-pages from /root</p>
+<div id="rinse-and-repeat" class="section level2">
+<h2>rinse and repeat</h2>
+<p>use_test(“function_name”)
+use_package(“wow”)</p>
+<p>use_vignette(“How to do this cool analysis”)</p>
+<p>load_all
+document</p>
+</div>
+<div id="before-releasing" class="section level2">
+<h2>Before releasing</h2>
+<p>goodpractice::gp() # automates some checks
+covr::report() # report coverage of tests
+usethis::use_citation() # look for the post make your r package easier to cite, from ropensci
+use_version() # TODO: check exactly when</p>
+</div>
+<div id="gotchas" class="section level2">
+<h2>gotchas</h2>
+<p>if you set dev=“svg” remember to also set fig.ext=“svg”
+for some reason dev=“svg” only, keeps naming the files png, which
+results in non-renderable figures. See:
+<a href="https://github.com/r-lib/pkgdown/issues/693" class="uri">https://github.com/r-lib/pkgdown/issues/693</a></p>
+</div>
+<div id="no-visible-binding-for-global-variable-or-how-to-deal-with-nse-in-packages" class="section level2">
+<h2>No Visible Binding for Global Variable or how to deal with NSE in packages</h2>
+<ul>
+<li><a href="https://nathaneastwood.github.io/2019/08/18/no-visible-binding-for-global-variable/" class="uri">https://nathaneastwood.github.io/2019/08/18/no-visible-binding-for-global-variable/</a>
+<ul>
+<li>with data.table applications</li>
+</ul></li>
+</ul>
+<p><a href="https://laderast.github.io/2019/02/12/package-building-description-namespace/" class="uri">https://laderast.github.io/2019/02/12/package-building-description-namespace/</a>
++ interesting flowchart</p>
+<ul>
+<li><a href="https://johnmuschelli.com/smi_2019/index.html#53" class="uri">https://johnmuschelli.com/smi_2019/index.html#53</a>
+<ul>
+<li>some interesting things</li>
+</ul>
+let’s use match.arg</li>
+</ul>
+<p>Either set
+globalVariables(c(“mpg”, “hp”, “mpg_div_hp”))</p>
+<p>Or a the top of the function do
+mpg &lt;- hp &lt;- mpg_div_hp &lt;- NULL</p>
+<p>Use the .data pronoun in tidyverse
+need to import it, though
+<span class="citation">@importFrom</span> rlang .data</p>
+</div>
+</div>

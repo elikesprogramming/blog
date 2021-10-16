@@ -102,7 +102,7 @@ plt.yticks(range(X_train.shape[1]), names)
 plt.show()
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure4_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure4_1.png)\
 
 
 Ok, that's better. I just keep missing taking a look at the variability in the
@@ -128,7 +128,7 @@ importance_variability.columns = names
 fig, axes = joypy.joyplot(importance_variability)
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure5_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure5_1.png)\
 
 Ok, now you have a sense of feature importance variability in the forest.
 But it seems a lot for the most important variables (which is expected, see
@@ -147,7 +147,7 @@ ax = sns.violinplot(x="importance", y="feature", data=importance_variability,
                     scale="width")
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure6_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure6_1.png)\
 
 Yeah, I think this more accurately reflects what is going on.
 
@@ -1379,7 +1379,7 @@ plt.errorbar(
 plt.show()
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure12_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure12_1.png)\
 
 
 Ok, but what about all the distribution? `eli5` also gives you `results_`,
@@ -1401,7 +1401,7 @@ importance_variability.columns = names
 fig, axes = joypy.joyplot(importance_variability)
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure13_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure13_1.png)\
 
 
 
@@ -1413,7 +1413,7 @@ ax = sns.violinplot(x="importance", y="feature", data=importance_variability,
                     scale="width")
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure14_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure14_1.png)\
 
 
 Good. Rather concentrated distributions around the mean/median. This is actually
@@ -1467,7 +1467,7 @@ plt.show()
 Elapsed time is 442.960194 seconds.
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure15_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure15_1.png)\
 
 Cool, so it is consistent with `eli5`'s default using accuracy'.
 
@@ -1516,7 +1516,7 @@ plt.show()
 Elapsed time is 450.371837 seconds.
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure17_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure17_1.png)\
 
 Great, this seems to make sense. Sex, that ended up relegated in the importance
 calculated using mean decrease impurity now indeed appears quite relevant
@@ -1589,7 +1589,7 @@ Elapsed time is 9.516456 seconds.
 Elapsed time is 0.666135 seconds.
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure20_1.png){width=350px}\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure20_1.png){width=350px}\
 
 
 And now calculate the permutation importance.
@@ -1620,7 +1620,7 @@ plt.show()
 Elapsed time is 340.431551 seconds.
 ```
 
-![](../../static/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure21_1.png)\
+![](/post/2017-01-15_Random_Forests_Feature_Importance/2017-01-15_Random_Forests_Feature_Importance_figure21_1.png)\
 
 
 So I'll leave feature importances here and move on to how to deal with class

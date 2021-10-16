@@ -1,0 +1,414 @@
+---
+title: Random Forests using Python for the new year (part 4: balanced bagging and SMOTE)
+author: elikesprogramming
+date: '2017-02-02'
+categories:
+  - Python
+tags:
+  - Random Forest
+---
+
+This is the 4th post on random forests and here I continue playing around
+the imbalance data issue. In the last post I tried cost-sensitive learning
+and the simplest form of under- and over-sampling.
+
+Yet, you can get more sofisticated. First, remember that random forest uses a
+bagging strategy, so it could be better (particularly for the undersampling
+approach) to apply the sampling modifications internally to the bootstrap
+samples, instead of just re-sampling the whole training dataset one time.
+Second, use techniques to synthesize a new minority class.
+[SMOTE: Synthetic Minority Over-sampling Technique](https://www.cs.cmu.edu/afs/cs/project/jair/pub/volume16/chawla02a-html/chawla2002.html)
+is the most frequently used and well-known of those techniques.
+
+So I will try those two here. But again, let's first restore the last session
+and fit the models.
+
+**UPDATE: post re-written to use `imbalanced-learn`, which I was not aware of
+at the time, and it makes much easier to apply the aforementioned approaches**
+
+```python, echo=False, hidden=True
+x = {"a": 1}
+
+
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+
+from mlxtend.plotting import plot_confusion_matrix
+
+import matplotlib.pyplot as plt
+%matplotlib inline
+#plt.ioff()
+#plt.ion()
+import joypy
+import seaborn as sns
+
+import eli5
+from eli5.sklearn import PermutationImportance
+from mlxtend.evaluate import feature_importance_permutation
+
+from scikitplot.metrics import plot_roc
+from scikitplot.metrics import plot_precision_recall
+from scikitplot.metrics import plot_ks_statistic
+from scikitplot.helpers import binary_ks_curve
+
+from pytictoc import TicToc
+
+from math import sqrt
+from math import ceil
+
+from epytools.pweave import plotly_markdown
+from epytools.classification import get_performance, plotly_performance_metrics
+```
+
+```python
+deaths_2016 = pd.read_csv(
+    "../../Python/deaths_eevv/data_src/Nofetal_2016.txt",
+    sep="\t", encoding="WINDOWS-1252"
+)
+
+deaths_2016["MUNI"] = deaths_2016["COD_DPTO"]*1000 + deaths_2016["COD_MUNIC"]
+deaths_2016 = deaths_2016.loc[deaths_2016["PMAN_MUER"] != 3]
+deaths_2016 = deaths_2016[[
+    "PMAN_MUER", "MES", "HORA", "MINUTOS", "SEXO", "EST_CIVIL", "GRU_ED2",
+    "NIVEL_EDU", "IDPERTET", "SEG_SOCIAL", "MUNI", "A_DEFUN"
+]]
+deaths_2016 = deaths_2016.dropna()
+
+X_all = deaths_2016.drop("PMAN_MUER", "columns")
+X_all["TIME"] = X_all["HORA"]*60 + X_all["MINUTOS"]
+X_all = X_all.drop("HORA", "columns")
+X_all = X_all.drop("MINUTOS", "columns")
+y_all = deaths_2016.loc[:, "PMAN_MUER"]
+# Let's now yeah make it 0, 1 instead of 1, 2
+# y_all = y_all.replace(1, "negativo")
+# y_all = y_all.replace(2, "afirmativo")
+y_all = y_all.replace(1, 0)
+y_all = y_all.replace(2, 1)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_all, y_all, test_size=0.3, random_state=0
+)
+```
+
+```python
+models = {}
+with TicToc():
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_train, y_train)
+    models["Naive"] = rfc
+
+from imblearn.over_sampling import RandomOverSampler
+with TicToc():
+    ros = RandomOverSampler(random_state=0)
+    X_rs, y_rs = ros.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Over"] = rfc
+
+from imblearn.under_sampling import RandomUnderSampler
+with TicToc():
+    rus = RandomUnderSampler(random_state=0)
+    X_rs, y_rs = rus.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Under"] = rfc
+```
+
+# Balanced bagging and the Balanced Random Forest Classifier
+
+One approach is the so-called balanced bagging, sometimes referred as blagging.
+It is a technique advocated by [Wallace, Small, Brodley and Trikalinos](https://ieeexplore.ieee.org/document/6137280)
+that I would summarize as undersample the majority class on each bootstrap
+samples and use bagging to combine them all. Since Random Forests also use
+bagging, it seems pretty natural to also try this. You just need to modify how
+the bootstrap samples are taken, to make sure they under-sample the majority
+class and there you go. `imbalanced-learn` make it super easy using
+`imblearn.ensemble.BalancedRandomForestClassifier`. "A balanced random forest
+randomly under-samples each boostrap sample to balance it."
+
+```python
+from imblearn.ensemble import BalancedRandomForestClassifier
+brfc = BalancedRandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+with TicToc():
+    brfc.fit(X_train, y_train)
+    models["Blagging"] = brfc
+```
+
+Now let's see the results.
+
+```python, width="350px"
+performance = {m_i:get_performance(models[m_i], X_test, y_test, m_i) for m_i in models}
+plotly_markdown(plotly_performance_metrics(performance))
+```
+
+Good. Blagging is slightly but clearly superior to the simpler version of
+undersampling. Although the differences are small, blagging shows better
+precision and a bit better recall as well. All numbers in the confusion matrix
+are better as well (more true positives and true negatives, and fewer false
+positives and false negatives). So again, in comparison to naive undersampling,
+blagging is clearly superior.
+
+This actually makes a lot of sense. Common
+criticism of undersampling include: i) it discards a lot of valuable data
+and ii) artificially makes it look like the data have higher variability. Both
+are true, but both are at least partially tackled by blagging.
+
+In comparison to oversampling and the baseline model, the usual trade-offs apply
+and the business logic should drive the metric and model selection.
+
+Now, the oversampling approach is mid-way between the baseline model and
+blagging. Would synthetic approaches to oversampling improve this?
+
+# SMOTE and ADASYN
+
+[SMOTE (Synthetic Minority Over-sampling Technique)](https://www.cs.cmu.edu/afs/cs/project/jair/pub/volume16/chawla02a-html/chawla2002.html)
+was one of the first popular oversampling approach that instead of duplicating
+observations (sampling with replacement) as in the simplest approach,
+created new "synthetic" observations of the minority class. It creates new
+observations by randomly interpolating between existing k-neighboring
+observations of the minority class.
+
+[ADASYN: Adaptive Synthetic Sampling Approach for Imbalanced
+Learning](https://sci2s.ugr.es/keel/pdf/algorithm/congreso/2008-He-ieee.pdf)
+also creates new observations based on existing ones from the minority class,
+but it tries to do so "according to their level of difficulty in learning,
+where more synthetic data is generated for minority class examples that are
+harder to learn compared to those minority examples that are easier to learn".
+
+```python
+from imblearn.over_sampling import SMOTE, ADASYN
+with TicToc():
+    smote = SMOTE(random_state=0)
+    X_rs, y_rs = smote.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["SMOTE"] = rfc
+
+with TicToc():
+    adasyn = ADASYN(random_state=0)
+    X_rs, y_rs = adasyn.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["ADASYN"] = rfc
+```
+
+```python, width="350px"
+models_over = ["Over", "SMOTE", "ADASYN"]
+performance = {
+    model_i:get_performance(models[model_i], X_test, y_test, model_i)
+    for model_i in models_over
+}
+plotly_markdown(plotly_performance_metrics(performance))
+```
+OK, SMOTE and ADASYN, compared to the simplest oversampling approach, improve
+precision a bit at the expense of recall. But again, not big differences, in
+particular, when you compare SMOTE and ADASYN.
+
+# SMOTE variants
+
+`imbalanced-learn` also implements three SMOTE variants.
+
+```python
+from imblearn.over_sampling import BorderlineSMOTE, SVMSMOTE, KMeansSMOTE
+with TicToc():
+    brlsmote = BorderlineSMOTE(random_state=0)
+    X_rs, y_rs = brlsmote.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Borderline SMOTE"] = rfc
+with TicToc():
+    svmsmote = SVMSMOTE(random_state=0)
+    X_svmsmote, y_svmsmote = svmsmote.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["SVM SMOTE"] = rfc
+with TicToc():
+    kmeanssmote = KMeansSMOTE(random_state=0, cluster_balance_threshold=0.2)
+    X_rs, y_rs = kmeanssmote.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["KMeans SMOTE"] = rfc
+```
+
+```python, width="350px"
+models_over = ["Over", "SMOTE", "ADASYN", "Borderline SMOTE", "SVM SMOTE",
+               "KMeans SMOTE"]
+performance = {
+    model_i:get_performance(models[model_i], X_test, y_test, model_i)
+    for model_i in models_over
+}
+plotly_markdown(plotly_performance_metrics(performance))
+```
+
+Good, so similar story. Small changes and certainly not major improvements but
+still interesting to see the results. For other more interesting and
+relevant applications, you'd take a closer look to analyze which approach
+would be better.
+
+For this example, it is actually expected that these techniques do not show
+major improvements. Remember the predictors here are actually categorical
+variables that, for the sake of the exercise, I've been using as numeric ones.
+Hence, all the interpolation and nearest neighbours thing is less likely to
+bring much improvement (e.g. a point between two nominal categories does not
+have much meaning). Worth noting, several methods here do not apply or perform
+good for categorical features. I'll get back to this later.
+
+# Going back to undersampling
+
+There are certainly other approaches to undersampling out there. And
+`imbalanced-learn` implements a lot of them. Some of them are synthetic methods
+that create new observations instead of just sampling a few of the majority
+class (e.g. `ClusterCentroids`). Other methods re-sample the majority class
+without creating new synthetic observations, but instead of a simple random
+sample they apply other methods (e.g. nearest neighbours) to come up with rules
+to decide which observations to include. One particularly interesting could be
+`InstanceHardnessThreshold` because it is the only one that actually fit the
+classifier of your choice and uses its predictions to exclude observations
+(those with "low probability will be removed").
+
+So here I will just try most of them and see what happens. I am not very fond
+of this approach of just fit every possible model and choose the best one
+(although I have seen it applied in real-life scenarios, more frequently than
+I would have liked). But for the sake of this exercise it is ok to show how
+impactful each method can be.
+
+In any case, I do not really expect these methods to dramatically improve the
+model, if at all, (I am still rooting for blagging) but for other specific
+applications some of them could be the way to go. So let's see.
+
+```python
+from imblearn.under_sampling import NearMiss
+with TicToc():
+    nm = NearMiss(version=1, random_state=0)
+    X_rs, y_rs = nm.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Near Miss 1"] = rfc
+
+from imblearn.under_sampling import TomekLinks
+with TicToc():
+    tl = TomekLinks(random_state=0)
+    X_rs, y_rs = tl.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Tomek Links"] = rfc
+
+from imblearn.under_sampling import EditedNearestNeighbours
+with TicToc():
+    enn = EditedNearestNeighbours(random_state=0)
+    X_rs, y_rs = enn.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Edited NN"] = rfc
+
+from imblearn.under_sampling import RepeatedEditedNearestNeighbours
+with TicToc():
+    renn = RepeatedEditedNearestNeighbours(random_state=0)
+    X_rs, y_rs = renn.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Repeated ENN"] = rfc
+
+from imblearn.under_sampling import AllKNN
+with TicToc():
+    allknn = AllKNN(random_state=0)
+    X_rs, y_rs = allknn.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["AllKNN"] = rfc
+
+from imblearn.under_sampling import OneSidedSelection
+with TicToc():
+    oss = OneSidedSelection(random_state=0)
+    X_rs, y_rs = oss.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["OneSidedSelection"] = rfc
+
+from imblearn.under_sampling import NeighbourhoodCleaningRule
+with TicToc():
+    ncr = NeighbourhoodCleaningRule(random_state=0)
+    X_rs, y_rs = ncr.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["N CleaningRule"] = rfc
+from imblearn.under_sampling import InstanceHardnessThreshold
+with TicToc():
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    iht = InstanceHardnessThreshold(random_state=0, estimator=rfc)
+    X_rs, y_rs = iht.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["Hardness"] = rfc
+```
+
+```python, width="350px"
+models_over = ["Blagging", "Near Miss 1", "Under", "Tomek Links",
+          "Edited NN", "Repeated ENN",
+          "AllKNN", "OneSidedSelection", "N CleaningRule",
+          "Hardness"]
+performance = {
+    model_i:get_performance(models[model_i], X_test, y_test, model_i)
+    for model_i in models_over
+}
+plotly_markdown(plotly_performance_metrics(performance))
+```
+
+Good, as expected, some considerable changes between undersampling approaches,
+but no clear and major improvements (always trade-offs).
+For example, near miss version 1 considerably improves recall reaching
+<%="{:.1%}".format(performance["Near Miss 1"]["recall"])%>, but this is at the
+expense of a nosedive in precision (<%="{:.1%}".format(performance["Near Miss
+1"]["precision"])%>). Tomek Links for example improves precision but again, at
+the expense of recall, making it a classifier similar to the results obtained
+in the baseline model and oversampling approaches.
+
+# Combination of over- and under-sampling
+
+Finally, there are methods combining over- and under-sampling.
+`imbalanced-learn` implements two methods based on SMOTE. Since SMOTE can
+generate noisy samples, a couple of undersampling methods are used to try to
+clean the messy observations generated by SMOTE ("cleaning the space resulting
+from over-sampling"). So here's the example.
+
+```python
+from imblearn.combine import SMOTEENN
+with TicToc():
+    smote_enn = SMOTEENN(random_state=0)
+    X_rs, y_rs = smote_enn.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["SMOTEENN"] = rfc
+
+from imblearn.combine import SMOTETomek
+with TicToc():
+    smote_tomek = SMOTETomek(random_state=0)
+    X_rs, y_rs = smote_tomek.fit_resample(X_train, y_train)
+    rfc = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+    rfc.fit(X_rs, y_rs)
+    models["SMOTETomek"] = rfc
+```
+
+And let's see how they compare to some of the models above.
+```python
+models_over = ["Naive", "Blagging", "Over", "Under", "SMOTEENN", "SMOTETomek"]
+performance = {
+    model_i:get_performance(models[model_i], X_test, y_test, model_i)
+    for model_i in models_over
+}
+plotly_markdown(plotly_performance_metrics(performance))
+```
+
+Good, that's enough for this post.
+
+```python
+performance = {
+    model_i:get_performance(models[model_i], X_test, y_test, model_i)
+    for model_i in models
+}
+plotly_markdown(plotly_performance_metrics(performance))
+```

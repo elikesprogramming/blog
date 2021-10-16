@@ -1,0 +1,425 @@
+---
+title: Random Forests using Python for the new year (part 3: imbalanced data)
+author: elikesprogramming
+date: '2017-01-23'
+categories:
+  - Python
+tags:
+  - Random Forest
+---
+
+Well, I have already a couple of posts exploring how to use
+Random Forests in Python, first just exploring perfomance metrics, then
+taking a look at feature importance and now let's see how to deal with
+imbalanced data.
+
+Again, let me start fitting the naive model to work with.
+
+```python, echo=False, hidden=True
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
+
+from mlxtend.plotting import plot_confusion_matrix
+
+import matplotlib.pyplot as plt
+%matplotlib inline
+#plt.ioff()
+#plt.ion()
+import joypy
+import seaborn as sns
+
+import eli5
+from eli5.sklearn import PermutationImportance
+from mlxtend.evaluate import feature_importance_permutation
+
+from scikitplot.metrics import plot_roc
+from scikitplot.metrics import plot_precision_recall
+from scikitplot.metrics import plot_ks_statistic
+from scikitplot.helpers import binary_ks_curve
+
+from pytictoc import TicToc
+
+from math import sqrt
+from math import ceil
+```
+
+```python, results="raw"
+deaths_2016 = pd.read_csv(
+    "../../Python/deaths_eevv/data_src/Nofetal_2016.txt",
+    sep="\t", encoding="WINDOWS-1252"
+)
+
+deaths_2016["MUNI"] = deaths_2016["COD_DPTO"]*1000 + deaths_2016["COD_MUNIC"]
+deaths_2016 = deaths_2016.loc[deaths_2016["PMAN_MUER"] != 3]
+deaths_2016 = deaths_2016[[
+    "PMAN_MUER", "MES", "HORA", "MINUTOS", "SEXO", "EST_CIVIL", "GRU_ED2",
+    "NIVEL_EDU", "IDPERTET", "SEG_SOCIAL", "MUNI", "A_DEFUN"
+]]
+deaths_2016 = deaths_2016.dropna()
+
+X_all = deaths_2016.drop("PMAN_MUER", "columns")
+X_all["TIME"] = X_all["HORA"]*60 + X_all["MINUTOS"]
+X_all = X_all.drop("HORA", "columns")
+X_all = X_all.drop("MINUTOS", "columns")
+y_all = deaths_2016.loc[:, "PMAN_MUER"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_all, y_all, test_size=0.3, random_state=0
+)
+```
+
+# Imbalanced data
+
+So we have imbalanced data and we saw the model is weak for the low-frequency
+class, which is actually the one I am interested in: violent deaths. So let's
+try different approaches to deal with class imbalance.
+
+Common strategies are:
+
+- cost-sensitive training -i.e. assign more weight to the low frequency class-
+- over-sampling the low frequency class, under-sampling the majority class, and
+  combinations thereof.
+
+So I will try those and see how it goes (-other common approach would be to
+explore other algorithm, such as boosting-based algorithms that tend to
+outperform Random Forests in the case of imbalanced data; so this would
+probably be a topic of a future post-).
+
+## Cost-sensitive learning
+
+Cost-sensitive approach is straightforward in `scikit-learn`. You just have
+to use the `class_weight` argument of the `RandomForestClassifier`. You can
+then pass custom weights, or go for one of “balanced” or
+“balanced_subsample” modes, that adjusts weights inversely proportional to class
+frequencies in the input data and the bootstrap sample respectively.
+
+So let's try that. Before, define a function to assess several performance
+metrics. It basically receives a model and test dataset and returns a
+dictionary with a bunch of the performance metrics discussed previously.
+
+```python
+def get_performance(model_i, X_test, y_test, model_title):
+    model_prob = model_i.predict_proba(X_test)
+    model_pred = model_i.predict(X_test)
+    tn, fp, fn, tp = metrics.confusion_matrix(y_test, model_pred).ravel()
+    confusion_matrix = plot_confusion_matrix(
+        conf_mat=metrics.confusion_matrix(y_test, model_pred),
+        show_absolute=True,
+        show_normed=True
+    )
+    auc = metrics.roc_auc_score(y_test, model_prob[:, 1])
+
+    roc = plot_roc(y_test, model_prob, plot_micro=False, plot_macro=False,
+                   title = "ROC curve: " + model_title)
+
+    # Ok, ideally you'd plot all roc in a single plot to compare them
+    # but scikit-plot does not make it so easy, you would have to pass always
+    # the same axis, and then you would have to mess with customizing labels
+    # and fixing colors.
+    # global ax_roc
+    # curr_handles, curr_labels = ax_roc.get_legend_handles_labels()
+    # print(len(curr_handles))
+    # print(curr_labels)
+    # curr_labels[len(curr_handles)-1] = "ROC: " + model_title
+    # curr_handles[len(curr_handles)-1].set_color(plt.cm.get_cmap("nipy_spectral")(len(curr_handles)))
+    # ax_roc = ax_roc.legend(curr_handles, curr_labels)
+
+    precision, recall, threshold = metrics.precision_recall_curve(
+        y_test, model_prob[:, 1], pos_label=2
+    )
+    auprc = metrics.auc(recall, precision)
+    prc = plot_precision_recall(y_test, model_prob, plot_micro=False,
+                                title="Precision-Recall Curve: " + model_title)
+
+    ks_plot = plot_ks_statistic(
+        y_test, model_prob, title="KS Statistic Plot: "+model_title
+    )
+    thresholds, pct1, pct2, ks_statistic, max_distance_at, classes = binary_ks_curve(
+        y_test, np.array(model_prob)[:, 1].ravel())
+
+    return({
+        "tn": tn,
+        "fp": fp,
+        "fn": fn,
+        "tp": tp,
+        "confusion_matrix": confusion_matrix,
+        "balanced_accuracy": metrics.balanced_accuracy_score(y_test, model_pred),
+        "matthews": metrics.matthews_corrcoef(y_test, model_pred),
+        "cohen_kappa": metrics.cohen_kappa_score(y_test, model_pred),
+        "jaccard": metrics.jaccard_score(y_test, model_pred, pos_label=2),
+        "precision": metrics.precision_score(y_test, model_pred, pos_label=2),
+        "recall": metrics.recall_score(y_test, model_pred, pos_label=2),
+        "f1": metrics.f1_score(y_test, model_pred, pos_label=2),
+        "f2": metrics.fbeta_score(y_test, model_pred, beta=2, pos_label=2),
+        "ks": ks_statistic,
+        "avg_precision": metrics.average_precision_score(y_test, model_pred, pos_label=2),
+        "roc": roc,
+        "auc": auc,
+        "prc": prc,
+        "auprc": auprc,
+        "ks_plot": ks_plot
+    })
+```
+
+And now fit the models with balanced weights and collect all the models,
+including the naive model, in a dictionary (to have a descriptive name for
+each model).
+```python
+# Start by saving the naive model to later compare to the other models
+models = {}
+with TicToc(): # TicToc just to time it
+    rforestclf = RandomForestClassifier(
+        n_estimators=100, n_jobs=-1, random_state=0)
+    rforestclf.fit(X_train, y_train)
+    models["Naive"] = rforestclf
+
+with TicToc(): # TicToc just to time it
+    rforestclf = RandomForestClassifier(
+        n_estimators=100, n_jobs=-1, random_state=0, class_weight="balanced")
+    rforestclf.fit(X_train, y_train)
+    models["Balanced"] = rforestclf
+
+with TicToc(): # TicToc just to time it
+    rforestclf = RandomForestClassifier(
+        n_estimators=100, n_jobs=-1, random_state=0, class_weight="balanced_subsample")
+    rforestclf.fit(X_train, y_train)
+    models["Balanced Subsample"] = rforestclf
+```
+
+And one-liner dictionary comprehension to get the performance for all models.
+```python, width="350px"
+performance = {m_i:get_performance(models[m_i], X_test, y_test, m_i) for m_i in models}
+```
+
+
+And in addition to the curves, plot the single-number metrics
+```python
+def plot_performance_metrics(performance):
+    performance_metrics = pd.DataFrame(performance)
+    performance_metrics = performance_metrics.drop("confusion_matrix")
+    performance_metrics = performance_metrics.drop("roc")
+    performance_metrics = performance_metrics.drop("prc")
+    performance_metrics = performance_metrics.drop("ks_plot")
+    # performance_metrics = performance_metrics.transpose()
+    # ax = performance_metrics.plot.bar(
+    #     subplots=True, layout=(4, 4), figsize=(10, 7), sharex=True, sharey=False,
+    #     legend=False, rot=90
+    # )
+    performance_metrics["metric"] = performance_metrics.index
+    performance_metrics = pd.melt(
+        frame=performance_metrics,
+        id_vars=["metric"],
+        value_vars=None, # to let it use all columns not set as id_vars
+        var_name="model",
+        value_name="value"
+    )
+
+    from math import sqrt
+    from math import ceil
+    rowscols = ceil(sqrt(performance_metrics["metric"].nunique()))
+
+    from plotly.subplots import make_subplots
+    metrics_titles = performance_metrics["metric"].unique()
+    fig = make_subplots(rows=rowscols, cols=rowscols,
+                        subplot_titles=metrics_titles,
+                        shared_xaxes=True, shared_yaxes=False)
+    for metric_name, model_values in performance_metrics.groupby("metric"):
+        plot_pos = np.unravel_index(
+            indices=np.where(metrics_titles == metric_name),
+            shape=(rowscols, rowscols)
+        )
+        # fig.add_bar(
+        #     y=model_values["value"], x=model_values["model"],
+        #     marker=dict(color="black"), width=0.02, # for lollipop-like
+        #     row=int(plot_pos[0]) + 1, col=int(plot_pos[1]) + 1, showlegend=False
+        # )
+        fig.add_scatter(
+            y=model_values["value"].values, x=model_values["model"],
+            mode="markers", marker=dict(size=8),
+            row=int(plot_pos[0]) + 1, col=int(plot_pos[1]) + 1, showlegend=False
+        )
+
+    fig.update_layout(margin={"l": 0, "t": 20, "b": 0})
+    #fig
+
+    import plotly
+    plotly_div = plotly.offline.plot(
+        fig,
+        include_plotlyjs="cdn",
+        show_link=False,
+        output_type='div'
+    )
+
+    from IPython.display import display_markdown
+    display_markdown(plotly_div, raw=True)
+```
+
+```python
+plot_performance_metrics(performance)
+```
+
+Cost-sensitive learning did not improve the model. Expected though.
+
+Now I try the simplest over- and under-sampling approaches.
+
+```python
+from sklearn.utils import resample
+
+over_sampled = resample(X_train[y_train == 2], replace=True,
+                        n_samples=sum(y_train == 1), random_state=0)
+
+X_train_oversampled = pd.concat([X_train[y_train == 1], over_sampled])
+y_train_oversampled = pd.concat([y_train[y_train == 1], y_train[over_sampled.index]])
+
+under_sampled = resample(X_train[y_train == 1], replace=False,
+                         n_samples=sum(y_train == 2), random_state=0)
+
+X_train_undersampled = pd.concat([X_train[y_train == 2], under_sampled])
+y_train_undersampled = pd.concat([y_train[y_train == 2], y_train[under_sampled.index]])
+```
+
+
+```python
+# models = {}
+# with TicToc(): # TicToc just to time it
+#     rforestclf = RandomForestClassifier(
+#         n_estimators=100, n_jobs=-1, random_state=0)
+#     rforestclf.fit(X_train, y_train)
+#     models["Naive"] = rforestclf
+
+with TicToc(): # TicToc just to time it
+    rforestclf = RandomForestClassifier(
+        n_estimators=100, n_jobs=-1, random_state=0)
+    rforestclf.fit(X_train_oversampled, y_train_oversampled)
+    models["Oversampled"] = rforestclf
+
+with TicToc(): # TicToc just to time it
+    rforestclf = RandomForestClassifier(
+        n_estimators=100, n_jobs=-1, random_state=0)
+    rforestclf.fit(X_train_undersampled, y_train_undersampled)
+    models["Undersampled"] = rforestclf
+```
+
+```python, width="350px"
+performance = {m_i:get_performance(models[m_i], X_test, y_test, m_i) for m_i in models}
+```
+
+```python
+plot_performance_metrics(performance)
+```
+
+Well, in terms of the predictive power for violent deaths, this is clearly
+better. Undersampling improves recall to
+<%="{:.1%}".format(performance["Undersampled"]["recall"])%> compared to the
+<%="{:.1%}".format(performance["Naive"]["recall"])%> of the naive model. This
+of course comes at the expense of a stark drop in the precision
+(<%="{:.1%}".format(performance["Undersampled"]["precision"])%> vs.
+<%="{:.1%}".format(performance["Naive"]["precision"])%> in the undersampled and
+naive model respectively). The drop in precision is somewhat bigger than the
+recall improvement and you can also see how some summary measures such as
+Matthews, Cohen-Kappa or Jaccard are actually lower in the undersample model.
+But this might be one of those examples where you care more about correctly
+hitting the minority class, even at the expense of many more mistakes in the
+majority class.
+
+Oversample falls somewhere un the middle. It does
+not improve as much recall, but of course the drop in precision is also not so
+big. However, you should also consider processing time (although in this example
+it is not that relevant because it is a small dataset with few features, but in
+many real applications this is an important issue): here, oversampling takes
+almost 10 times longer to fit than undersampling, and still the results seems
+somewhat better in the latter (and this happens quite often in my experience,
+so of course checking this is always important, but frequently the Undersampling
+approach ends up being more convenient).
+
+So, to wrap up this post, let me just take a look at the threshold. Remember
+that in the very first post in this Random Forest series I found also that the
+threshold at maximum difference in the KS plot was pretty low. And just by using
+that threshold you could start dealing better with class imbalance. So let's
+see how it compares just changing the threshold in the naive model with the
+other approaches explored here. For this let me just tweak the function to
+assess the performance of the model, not using the default prediction but
+rather let us use the threshold indicated by KS.
+
+```python
+def get_performance2(model_i, X_test, y_test, model_title):
+    model_prob = model_i.predict_proba(X_test)
+
+    # do not use the default predict anymore
+    # model_pred = model_i.predict(X_test)
+    # rather use the threshold indicated by KS
+    thresholds, pct1, pct2, ks_statistic, max_distance_at, classes = binary_ks_curve(
+        y_test, np.array(model_prob)[:, 1].ravel())
+
+    model_pred = np.ndarray(shape=model_prob[:, 1].shape)
+    model_pred[model_prob[:, 1] >= max_distance_at] = 2
+    model_pred[model_prob[:, 1] < max_distance_at] = 1
+
+    tn, fp, fn, tp = metrics.confusion_matrix(y_test, model_pred).ravel()
+    confusion_matrix = plot_confusion_matrix(
+        conf_mat=metrics.confusion_matrix(y_test, model_pred),
+        show_absolute=True,
+        show_normed=True
+    )
+    auc = metrics.roc_auc_score(y_test, model_prob[:, 1])
+
+    roc = plot_roc(y_test, model_prob, plot_micro=False, plot_macro=False,
+                   title = "ROC curve: " + model_title)
+
+    precision, recall, threshold = metrics.precision_recall_curve(
+        y_test, model_prob[:, 1], pos_label=2
+    )
+    auprc = metrics.auc(recall, precision)
+    prc = plot_precision_recall(y_test, model_prob, plot_micro=False,
+                                title="Precision-Recall Curve: " + model_title)
+
+    ks_plot = plot_ks_statistic(
+        y_test, model_prob, title="KS Statistic Plot: "+model_title
+    )
+
+    return({
+        "tn": tn,
+        "fp": fp,
+        "fn": fn,
+        "tp": tp,
+        "confusion_matrix": confusion_matrix,
+        "balanced_accuracy": metrics.balanced_accuracy_score(y_test, model_pred),
+        "matthews": metrics.matthews_corrcoef(y_test, model_pred),
+        "cohen_kappa": metrics.cohen_kappa_score(y_test, model_pred),
+        "jaccard": metrics.jaccard_score(y_test, model_pred, pos_label=2),
+        "precision": metrics.precision_score(y_test, model_pred, pos_label=2),
+        "recall": metrics.recall_score(y_test, model_pred, pos_label=2),
+        "f1": metrics.f1_score(y_test, model_pred, pos_label=2),
+        "f2": metrics.fbeta_score(y_test, model_pred, beta=2, pos_label=2),
+        "ks": ks_statistic,
+        "avg_precision": metrics.average_precision_score(y_test, model_pred, pos_label=2),
+        "roc": roc,
+        "auc": auc,
+        "prc": prc,
+        "auprc": auprc,
+        "ks_plot": ks_plot
+    })
+```
+
+And now get again the performance for the models and plot the metrics.
+
+```python, width="350px"
+performance2 = {m_i:get_performance2(models[m_i], X_test, y_test, m_i) for m_i in models}
+```
+
+```python
+plot_performance_metrics(performance2)
+```
+
+Yeah, just playing a bit with the threshold seems to be quite effective to get
+a sense of the imbalance issue. The classification with custom threshold
+makes the other approaches (cost-sensitive, over- and under-sampling) less
+impactful. Yet, the changes are qualitatively similar and present the typical
+trade-offs. Which model to choose then?
+
+In another post I'll keep on playing with this and other ways to deal with
+imbalance data.
