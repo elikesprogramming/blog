@@ -31,12 +31,11 @@ conda create -n ds_env -y
 conda activate ds_env
 conda config --env --add channels conda-forge
 conda config --env --set channel_priority strict
-conda install -y jupyter pandas scikit-learn matplotlib numpy scipy python-language-server[all] plotly pweave psycopg2 sqlalchemy fastcache yapf chardet xlrd
+conda install -y jupyter pandas scikit-learn matplotlib numpy scipy python-language-server[all] plotly pweave psycopg2 sqlalchemy fastcache yapf chardet xlrd vaex
 pip install python-datauri
 pip install pyunpack
 pip install file-read-backwards
-pip install -e C:\E\MEGA\Python\epytools
-pip install -e C:\Users\ed_al\OneDrive\Positiva\positiva_py
+pip install -e /path/epytools
 python --version
 
 ```
