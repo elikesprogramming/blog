@@ -1,0 +1,46 @@
+---
+title: Counting unique values
+author: elikesprogramming
+date: '2018-03-08'
+slug: index.en-us
+categories:
+  - R
+tags:
+  - tag1
+  - tag2
+keywords:
+  - tech
+---
+
+```{r}
+library(dplyr)
+library(vctrs)
+library(purrr)
+```
+
+
+```{r}
+summarise(mtcars, across(.f = n_distinct))
+```
+
+```{r}
+purrr::map_int(mtcars, .f = vctrs::vec_unique_count)
+```
+
+
+```{r}
+mbm <- microbenchmark::microbenchmark(
+  summarise(mtcars, across(.f = n_distinct)),
+  map_int(mtcars, .f = vec_unique_count)
+)
+```
+
+
+```{r}
+mbm
+```
+
+```{r}
+ggplot2::autoplot(mbm)
+```
+
