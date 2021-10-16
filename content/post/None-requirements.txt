@@ -4,4 +4,4 @@ vaex
 IPython==7.22.0
 jupyter_client==6.1.12
 jupyter_core==4.7.1
-notebook==6.3.0
+notebook==6.4.1
