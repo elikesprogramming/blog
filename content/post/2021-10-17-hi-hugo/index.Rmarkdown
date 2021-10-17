@@ -13,6 +13,10 @@ keywords:
   - tech
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_knit$set(upload.fun = knitr::imgur_upload)
+```
+
 What ???
 
 
