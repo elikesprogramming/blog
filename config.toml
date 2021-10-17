@@ -142,7 +142,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\
   # Current image is on AWS S3 and delivered by AWS CloudFront.
   # Otherwise put your image in folder `static/_images/` (development)  or in `source/assets/images/` if you can't or don't want to build the theme,
   # and use relative url : `your-image.png`
-  coverImage = "https://ik.imagekit.io/zu4dlpackopz/resized_uqwqmeMhv?updatedAt=1634500363847"
+  coverImage = "https://ik.imagekit.io/zu4dlpackopz/default-image.jpg?updatedAt=1634498814521"
 
   # Display an image gallery at the end of a post which have photos variables (false: disabled, true: enabled)
   imageGallery = true
