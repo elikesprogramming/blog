@@ -1,5 +1,5 @@
 ---
-title: Counting unique values
+title: Counting unique values: vctrs+purrr vs. dplyr 
 author: elikesprogramming
 date: '2018-03-08'
 slug: index.en-us
@@ -44,3 +44,21 @@ mbm
 ggplot2::autoplot(mbm)
 ```
 
+
+
+```{r}
+mbm <- microbenchmark::microbenchmark(
+  summarise(ggplot2::diamonds, across(.f = n_distinct)),
+  map_int(ggplot2::diamonds, .f = vec_unique_count)
+)
+```
+
+
+
+```{r}
+mbm
+```
+
+```{r}
+ggplot2::autoplot(mbm)
+```

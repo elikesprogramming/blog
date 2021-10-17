@@ -1,0 +1,216 @@
+---
+title: Reinventing the wheel: ROC and Precision-Recall Curve edition
+author: elikesprogramming
+date: '2017-06-14'
+categories:
+  - Python
+tags:
+  - ROC Curve, Precision-Recall Curve, Plotly
+---
+
+
+Now explore the [model evaluation](https://scikit-learn.org/stable/modules/model_evaluation.html)
+metrics that sklearn provides.
+
+
+
+```python
+import os
+print(os.getcwd())
+
+toy = {"a": 1}
+
+
+def plot_roc(y_true, y_probas, title='ROC Curves',
+                   plot_micro=True, plot_macro=True, classes_to_plot=None,
+                   ax=None, figsize=None, cmap='nipy_spectral',
+                   title_fontsize="large", text_fontsize="medium"):
+
+   y_true = np.array(y_true)
+   classes = np.unique(y_true)
+
+   if classes_to_plot is None:
+       classes_to_plot = classes
+
+   classes_to_plot = ["negativo", "ass"]
+   indices_to_plot = np.array(np.where(np.isin(classes, classes_to_plot)))
+
+```
+
+
+
+```python
+y_train.value_counts(normalize=True)
+y_test.value_counts(normalize=True)
+```
+
+
+
+TODO: add edit
+
+TODO: automatic feature selection
+https://chrisalbon.com/machine_learning/trees_and_forests/feature_selection_using_random_forest/
+
+rfc = RandomForestClassifier(n_estimators=1000, n_jobs=-1, random_state=0, class_weight="balanced")
+
+from sklearn.feature_selection import SelectFromModel
+sfm = SelectFromModel(rfc, threshold=0.15)
+sfm.fit(X_train, y_train)
+
+X_important_train = sfm.transform(X_train)
+X_important_test = sfm.transform(X_test)
+
+rfc_important = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=0)
+
+
+
+
+
+
+
+# https://stackoverflow.com/questions/40389764/how-to-translate-bytes-objects-into-literal-strings-in-pandas-dataframe-pytho
+df["A1_Score"].str.decode("utf-8")
+
+
+
+TODO: overfitting
+https://mljar.com/blog/random-forest-overfitting/
+
+TODO: imbalanced data
+https://stats.stackexchange.com/questions/340854/random-forest-for-imbalanced-data/340861
+https://stackoverflow.com/questions/31289011/auc-base-features-importance-using-random-forest
+
+
+TODO: categorical variables
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html
+https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder
+https://www.google.com/search?rlz=1C1CHBF_deDE857DE857&ei=2Z5jXcu6LYPIwALn_ajIBw&q=sklearn+RandomForestClassifier+one+hot+encoding+example&oq=sklearn+RandomForestClassifier+one+hot+encoding+example&gs_l=psy-ab.3..33i21.6380.10441..10513...0.1..0.227.2827.5j17j1......0....1..gws-wiz.......0i71j0i13j0i22i30j33i160j33i22i29i30.BoLuuJXZfJo&ved=0ahUKEwiLi_i0laDkAhUDJFAKHec-CnkQ4dUDCAo&uact=5
+features = pd.get_dummies(features)
+https://www.oreilly.com/library/view/introduction-to-machine/9781449369880/ch04.html
+https://medium.com/@Nithanaroy/encoding-fixed-length-high-cardinality-non-numeric-columns-for-a-ml-algorithm-b1c910cb4e6d
+
+X_all = pd.get_dummies(X_all)
+X_all.head(2)
+
+# from sklearn.preprocessing import OneHotEncoder
+# enc = OneHotEncoder(handle_unknown='ignore')
+# enc.fit(deaths_2016)
+
+
+TODO: importance with categorical features
+https://www.reddit.com/r/MachineLearning/comments/9446iq/d_random_forest_classification_feature_importance/
+https://github.com/catboost/catboost
+https://stats.stackexchange.com/questions/314567/feature-importance-with-dummy-variables
+https://www.google.com/search?q=variable+importance+random+forest+scilearn+with+categorical+variables+one+hot+ecoding&rlz=1C1CHBF_deDE857DE857&oq=variable+importance+random+forest+scilearn+with+categorical+variables+one+hot+ecoding&aqs=chrome..69i57.18948j0j9&sourceid=chrome&ie=UTF-8
+
+TODO: visuailze the trees
+https://www.kaggle.com/willkoehrsen/visualize-a-decision-tree-w-python-scikit-learn
+https://towardsdatascience.com/how-to-visualize-a-decision-tree-from-a-random-forest-in-python-using-scikit-learn-38ad2d75f21c
+https://mathematica.stackexchange.com/questions/98794/how-to-visualize-a-random-forest-classifier
+https://www.google.com/search?q=python+sklearn+random+forest+visualization+interactive&rlz=1C1CHBF_deDE857DE857&ei=yl5iXZ6kHYykwAKOzI3YCQ&start=10&sa=N&ved=0ahUKEwiesZSX5J3kAhUMElAKHQ5mA5sQ8NMDCMQB&biw=1536&bih=763
+https://towardsdatascience.com/random-forest-in-python-24d0893d51c0
+https://jakevdp.github.io/PythonDataScienceHandbook/05.08-random-forests.html
+
+from sklearn.tree import export_graphviz
+from sklearn.externals.six import StringIO
+from IPython.display import Image
+from pydot import graph_from_dot_data
+
+dt = models["Naive"].estimators_[0]
+dot_data = StringIO()
+
+export_graphviz(dt, out_file=dot_data, feature_names=X_train.columns)
+
+(graph, ) = graph_from_dot_data(dot_data.getvalue())
+
+Image(graph.create_png())
+
+
+TODO: hyperparameter tuning
+
+TODO: detect interactions
+TODO: detect outliers
+
+TODO: new post checking if the random feature he introduced, despite having higher
+importance than other predictors, has a considerably lower variability in the
+importance, citing the paper somewhere else above
+https://towardsdatascience.com/explaining-feature-importance-by-example-of-a-random-forest-d9166011959e
+
+TODO:
+- categorical variables in scilearn random forest model
+variable importance
+unbalanced dataset
+categorical predictors
+tune hyper parameters
+
+
+
+TODO: compare in sample and out of sample accuracy, to see if there is some
+overfitting
+https://mljar.com/blog/random-forest-overfitting/
+
+TODO:
+correlation matrix for categorical variables
+https://towardsdatascience.com/the-search-for-categorical-correlation-a1cf7f1888c9
+
+TODO:
+perhaps take a look at dependence measure
+basically regressing every predictor on all others
+https://explained.ai/rf-importance/
+
+TODO:
+check out LIME (Local Interpretable Model-agnostic Explanations)
+check out Treeinterpreter, for Observation level feature importance
+https://towardsdatascience.com/explaining-feature-importance-by-example-of-a-random-forest-d9166011959e
+
+TODO:
+boosting
+It’s true that RF uses bootstrapping to create multiple trees but in practice
+that is not enough to beat the imbalanced class problem. We usually go for a
+boosting based algorithm since it(boosting) involves paying more attention
+to the points wrongly classified while creating successive trees. Some of the
+popular algo are
+a. XGBoost - https://www.analyticsvidhya.com/blog/2016/01/xgboost-algorithm-easy-steps/
+b. LightGBM - https://www.analyticsvidhya.com/blog/2017/06/which-algorithm-takes-the-crown-light-gbm-vs-xgboost/
+
+TODO:
+check if split needs stratification
+sklearn.cross_validation.StratifiedKFold
+
+TODO:
+check probability estimates calibration
+sklearn.calibration.CalibratedClassifierCV)
+https://www.svds.com/classifiers2/
+
+TODO:
+check negihbor based approaches to balanced learning
+https://github.com/ojtwist/TomekLink
+
+TODO:
+try  Box Drawings for Learning with Imbalanced Data5
+
+TODO:
+try Isolation Forests
+
+TODO:
+try Nearest Neighbor Ensembles as a similar idea that was able to overcome
+several shortcomings of Isolation Forests.
+
+TODO:
+Choosing the right estimator cheatsheet
+https://scikit-learn.org/stable/tutorial/machine_learning_map/index.html
+
+TODO:
+https://github.com/scikit-learn-contrib/imbalanced-learn
+
+TODO:
+https://github.com/wangz10/class_imbalance/blob/master/resample_forest.py
+
+TODO:
+https://machinelearningmastery.com/
+
+
+
+
+YAPF
+https://github.com/google/yapf/blob/master/yapf/yapflib/style.py
