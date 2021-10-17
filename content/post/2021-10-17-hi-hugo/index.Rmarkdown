@@ -1,0 +1,70 @@
+---
+title: Hi Hugo
+author: ''
+date: '2021-10-17'
+slug: hi-hugo
+categories:
+  - category
+  - subcategory
+tags:
+  - tag1
+  - tag2
+keywords:
+  - tech
+---
+
+What ???
+
+
+```{r error=FALSE, warning=FALSE, results='hide'}
+library(dplyr)
+library(vctrs)
+library(purrr)
+```
+
+
+```{r}
+summarise(mtcars, across(.f = n_distinct))
+```
+
+```{r}
+purrr::map_int(mtcars, .f = vctrs::vec_unique_count)
+```
+
+
+```{r}
+mbm <- microbenchmark::microbenchmark(
+  summarise(mtcars, across(.f = n_distinct)),
+  map_int(mtcars, .f = vec_unique_count)
+)
+```
+
+
+```{r}
+mbm
+```
+
+```{r}
+ggplot2::autoplot(mbm)
+```
+
+
+
+```{r}
+mbm <- microbenchmark::microbenchmark(
+  summarise(ggplot2::diamonds, across(.f = n_distinct)),
+  map_int(ggplot2::diamonds, .f = vec_unique_count)
+)
+```
+
+
+
+```{r}
+mbm
+```
+
+```{r}
+ggplot2::autoplot(mbm)
+```
+
+
