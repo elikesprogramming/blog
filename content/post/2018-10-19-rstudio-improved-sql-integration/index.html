@@ -11,6 +11,7 @@ tags:
   - PostgreSQL
 ---
 
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
 <p>RStudio is awesome and they have just announced several improvements to the IDE (available in the preview version). One of the improvements I find exciting is a <a href="https://blog.rstudio.com/2018/10/02/rstudio-1-2-preview-sql/">better SQL integration</a>.</p>
@@ -35,23 +36,16 @@ pgconn &lt;- DBI::dbConnect(odbc::odbc(),
                       Port     = 5432)</code></pre>
 <p>Or, taking advantage of RStudio SQL integration, perhaps you can use the Connections pane to make a new connection, and if you have <code>odbc</code> installed and the drivers properly installed as well, PostgreSQL should appear in the menu as existing data sources.</p>
 <div class="figure">
-<img src="/post/2018-10-19-rstudio-improved-sql-integration_files/connectionspane_postgres_screenshot.png" alt="such a big screenshot" />
+<img src="images/connectionspane_postgres_screenshot.png" alt="" />
 <p class="caption">such a big screenshot</p>
 </div>
 <p>To the best of my knowledge, using <code>odbc</code> with appropiate drivers is currently the only way to take advantage of SQL integration in RStudio connecting to a PostgreSQL database. And the downside of installing drivers should not be a major issue (it is pretty straightforward, but perhaps if you are in a machine without admin privileges you can run into some troubles. Or perhaps you just prefer <code>RPostgreSQL</code> over <code>odbc</code> for whatrever reason. For example, <a href="https://community.rstudio.com/t/postgresql-in-connection-tab/1817/4">jlacko asked about this in RStudio Community and after finding out <code>odbc</code> is the alternative, she/he “will forgo the Connections tab for a while, and stick to RPostgreSQL package, imperfect as it is.”</a>).</p>
 <p>But there is hope for those wanting to stick to <code>RPostgreSQL</code>. There is a possibility of <a href="https://github.com/r-dbi/DBI/issues/211">Implementing RStudio Connection Contract</a> in <code>DBI</code> generic functions. That, in principle, would allow to use <code>RPostgreSQL</code> and still taking advantage of SQL integration.</p>
-<!-- #  -->
-<!-- # dbdrv <- DBI::dbDriver("PostgreSQL") -->
-<!-- # dbconn <- odbc::dbConnect( -->
-<!-- #  dbdrv, -->
-<!-- #  dbname = "morbi", user = "postgres", password = "postgres") -->
-<!-- #  -->
-<!-- # odbc::dbConnect() -->
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>RStudio Connections Contract uses an observer pattern, where the package handling the connection has to notify Rstudio about the connection and whenever it changes<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>Currently only <code>odbc</code> and <code>sparklyr</code> do that<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>There mimght be other differences between the packages, including <a href="https://rpubs.com/nwstephens/334324">some performance differences</a><a href="#fnref3" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>RStudio Connections Contract uses an observer pattern, where the package handling the connection has to notify Rstudio about the connection and whenever it changes<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Currently only <code>odbc</code> and <code>sparklyr</code> do that<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>There mimght be other differences between the packages, including <a href="https://rpubs.com/nwstephens/334324">some performance differences</a><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

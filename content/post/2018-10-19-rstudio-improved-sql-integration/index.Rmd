@@ -15,7 +15,7 @@ RStudio is awesome and they have just announced several improvements to the IDE 
 
 RStudio had already some integration, including syntax highlighting and SQL chunks in R Markdown documents. But it was certainly limited. So, whenever you had to interact with databases using SQL, most probably you ended up using another IDE along RStudio to interact with the databases (at least during developing phase, 'cause even though you can certainly use several R packages to obtain and manipulate data in PostgreSQL, it was not easy to explore the database -e.g. verify table names, columns, data types, etc.-).
 
-Well, I think this has changed with the new RStudio release. It includes key features that can eliminate the need to use another IDE to interact with PostgreSQL. The improved version includes autocompletion, list of tables shown in the connections tab and instant preview of query results. Worth noting, autocompletion works both, in SQL chunks in  R Markdown documents and in pure SQL scripts. The new release also includes other nice features like [`keyring`](https://cran.r-project.org/web/packages/keyring/index.html) integration, to avoid hardcoding passwords in your R/RMarkDown scripts.
+Well, I think this has changed with the new RStudio release. It includes key features that can eliminate the need to use another IDE to interact with PostgreSQL. The improved version includes autocompletion, list of tables shown in the connections tab and instant preview of query results. Worth noting, autocompletion works both, in SQL chunks in R Markdown documents and in pure SQL scripts. The new release also includes other nice features like [`keyring`](https://cran.r-project.org/web/packages/keyring/index.html) integration, to avoid hardcoding passwords in your R/RMarkDown scripts.
 
 Now, does this work with all SQL-enabled systems (various RDBMS, Spark, Drill, etc.)?
 
@@ -48,19 +48,8 @@ pgconn <- DBI::dbConnect(odbc::odbc(),
 
 Or, taking advantage of RStudio SQL integration, perhaps you can use the Connections pane to make a new connection, and if you have `odbc` installed and the drivers properly installed as well, PostgreSQL should appear in the menu as existing data sources.
 
-![such a big screenshot](/post/2018-10-19-rstudio-improved-sql-integration_files/connectionspane_postgres_screenshot.png)
+![such a big screenshot](images/connectionspane_postgres_screenshot.png)
 
 To the best of my knowledge, using `odbc` with appropiate drivers is currently the only way to take advantage of SQL integration in RStudio connecting to a PostgreSQL database. And the downside of installing drivers should not be a major issue (it is pretty straightforward, but perhaps if you are in a machine without admin privileges you can run into some troubles. Or perhaps you just prefer `RPostgreSQL` over `odbc` for whatrever reason. For example, [jlacko asked about this in RStudio Community and after finding out `odbc` is the alternative, she/he "will forgo the Connections tab for a while, and stick to RPostgreSQL package, imperfect as it is."](https://community.rstudio.com/t/postgresql-in-connection-tab/1817/4)).
 
 But there is hope for those wanting to stick to `RPostgreSQL`. There is a possibility of [Implementing RStudio Connection Contract](https://github.com/r-dbi/DBI/issues/211) in `DBI` generic functions. That, in principle, would allow to use `RPostgreSQL` and still taking advantage of SQL integration.
-
-
-<!-- #  -->
-
-<!-- # dbdrv <- DBI::dbDriver("PostgreSQL") -->
-<!-- # dbconn <- odbc::dbConnect( -->
-<!-- # 	dbdrv, -->
-<!-- # 	dbname = "morbi", user = "postgres", password = "postgres") -->
-<!-- #  -->
-<!-- # odbc::dbConnect() -->
-
