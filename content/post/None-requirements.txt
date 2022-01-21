@@ -1,7 +1,7 @@
 pandas==1.2.4
 sinfo==0.3.1
 vaex
-IPython==7.22.0
+IPython==7.31.1
 jupyter_client==6.1.12
 jupyter_core==4.7.1
 notebook==6.4.1
